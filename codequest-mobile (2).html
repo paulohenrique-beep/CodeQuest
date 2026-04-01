@@ -1,0 +1,2906 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#07091400">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CodeQuest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="Aprenda programação do zero jogando como no Duolingo">
+<link rel="manifest" href="manifest.json">
+<title>CodeQuest</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070914;--surface:#111827;--surface2:#1a2235;--border:#1f2d45;
+  --accent:#00e5a0;--accent2:#ff6b35;--accent3:#6c63ff;--warn:#ffd166;
+  --text:#e8eaf6;--muted:#6b7a99;--red:#ff4d6d;--green:#00e5a0;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --nav-h: 60px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;height:100%;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);
+  overflow-x:hidden;min-height:100%;overscroll-behavior:none;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100dvh;flex-direction:column;animation:fadeUp .25s ease;}
+.screen.active{display:flex;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── TOP NAV ── */
+nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;
+  background:rgba(7,9,20,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;}
+.logo{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--accent);
+  letter-spacing:-1px;cursor:pointer;user-select:none;}
+.logo span{color:var(--accent2);}
+.nav-right{display:flex;gap:8px;align-items:center;}
+.nbadge{display:flex;align-items:center;gap:4px;background:var(--surface2);
+  border:1px solid var(--border);padding:5px 10px;border-radius:30px;
+  font-size:.78rem;font-weight:700;cursor:default;white-space:nowrap;}
+.nbadge.streak{color:var(--accent2)}.nbadge.xp{color:var(--warn)}.nbadge.lives{color:var(--red)}
+.nav-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);
+  display:flex;align-items:center;justify-content:center;font-weight:800;
+  font-size:.82rem;color:#070914;cursor:pointer;border:2px solid var(--accent);transition:transform .2s;}
+.nav-avatar:hover{transform:scale(1.1);}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;
+  background:rgba(17,24,39,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);display:flex;justify-content:center;
+  z-index:300;padding-bottom:var(--safe-bottom);}
+.bnav{flex:1;max-width:72px;padding:9px 4px 7px;background:transparent;border:none;
+  color:var(--muted);font-size:.6rem;font-weight:600;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:2px;transition:color .2s;
+  font-family:'DM Sans',sans-serif;}
+.bnav .bi{font-size:1.25rem;line-height:1;}
+.bnav.active{color:var(--accent);}
+.bnav:active{opacity:.7;}
+.main{padding-bottom:calc(var(--nav-h) + var(--safe-bottom) + 8px);}
+
+/* ── BUTTONS ── */
+.btn{padding:12px 24px;border-radius:12px;font-size:.92rem;font-weight:600;cursor:pointer;
+  border:none;transition:all .18s;font-family:'DM Sans',sans-serif;letter-spacing:.01em;}
+.btn-primary{background:var(--accent);color:#070914;}
+.btn-primary:hover{filter:brightness(1.1);}
+.btn-primary:active{transform:scale(.97);}
+.btn-secondary{background:transparent;color:var(--text);border:1.5px solid var(--border);}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+.btn-sm{padding:7px 16px;font-size:.82rem;border-radius:9px;}
+.btn-danger{background:rgba(255,77,109,.15);color:var(--red);border:1px solid rgba(255,77,109,.3);}
+.btn-purple{background:var(--accent3);color:#fff;}
+.btn-warn{background:rgba(255,209,102,.15);color:var(--warn);border:1px solid rgba(255,209,102,.3);}
+
+/* ── FORMS ── */
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:.82rem;font-weight:600;margin-bottom:6px;color:var(--muted);}
+.form-group input,.form-group textarea,.form-group select{
+  width:100%;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:10px;padding:11px 14px;color:var(--text);font-size:.95rem;
+  font-family:'DM Sans',sans-serif;transition:border-color .2s;outline:none;
+  -webkit-appearance:none;}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--accent);}
+.form-group textarea{resize:vertical;min-height:80px;}
+
+/* ── TOAST ── */
+#toast{position:fixed;top:72px;right:16px;left:16px;max-width:340px;margin:0 auto;
+  background:var(--surface);border:1px solid var(--accent);border-radius:12px;
+  padding:11px 16px;z-index:999;font-weight:600;font-size:.88rem;
+  box-shadow:0 8px 32px rgba(0,229,160,.2);text-align:center;
+  transform:translateY(-10px);opacity:0;pointer-events:none;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+#toast.show{transform:translateY(0);opacity:1;}
+#toast.error{border-color:var(--red);box-shadow:0 8px 32px rgba(255,77,109,.2);}
+#toast.warn{border-color:var(--warn);}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(7,9,20,.85);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  z-index:500;display:none;align-items:flex-end;justify-content:center;
+  padding:0;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);
+  border-radius:20px 20px 0 0;padding:24px 20px;
+  padding-bottom:calc(24px + var(--safe-bottom));
+  width:100%;max-width:600px;animation:slideUp .25s ease;
+  max-height:90dvh;overflow-y:auto;}
+.modal.center{border-radius:20px;margin:auto;max-height:85dvh;
+  padding-bottom:24px;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-title{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;margin-bottom:18px;
+  display:flex;align-items:center;gap:8px;}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:10px;
+  margin:0 auto 18px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;}
+
+/* ══════════════════════════════════════
+   AUTH SCREEN
+══════════════════════════════════════ */
+#screen-auth{
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(0,229,160,.09),transparent 70%),
+  radial-gradient(ellipse 60% 40% at 80% 100%,rgba(108,99,255,.07),transparent 60%);
+}
+.auth-container{flex:1;display:flex;align-items:center;justify-content:center;
+  padding:32px 20px;padding-bottom:calc(32px + var(--safe-bottom));}
+.auth-box{background:var(--surface);border:1px solid var(--border);border-radius:24px;
+  padding:32px 24px;max-width:400px;width:100%;}
+.auth-logo{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;
+  color:var(--accent);text-align:center;margin-bottom:4px;letter-spacing:-1px;}
+.auth-logo span{color:var(--accent2);}
+.auth-sub{text-align:center;color:var(--muted);font-size:.88rem;margin-bottom:24px;line-height:1.5;}
+.auth-tabs{display:flex;gap:0;margin-bottom:22px;background:var(--surface2);
+  border-radius:12px;padding:4px;}
+.auth-tab{flex:1;padding:9px;border-radius:9px;background:transparent;border:none;
+  color:var(--muted);font-weight:600;font-size:.88rem;cursor:pointer;transition:all .2s;
+  font-family:'DM Sans',sans-serif;}
+.auth-tab.active{background:var(--surface);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.3);}
+
+/* ══════════════════════════════════════
+   HOME
+══════════════════════════════════════ */
+.hero-dash{padding:28px 20px 16px;
+  background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(0,229,160,.07),transparent);}
+.hero-dash h1{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:-.5px;}
+.hero-dash p{color:var(--muted);font-size:.87rem;margin-top:3px;}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 20px;margin:14px 0;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:14px 8px;text-align:center;}
+.stat-num{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;line-height:1;}
+.stat-label{font-size:.68rem;color:var(--muted);margin-top:3px;}
+.section{padding:0 20px;margin-bottom:22px;}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.section-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;}
+.section-link{font-size:.8rem;color:var(--accent);cursor:pointer;font-weight:600;}
+
+.daily-card{background:linear-gradient(135deg,rgba(0,229,160,.1),rgba(108,99,255,.1));
+  border:1px solid rgba(0,229,160,.3);border-radius:16px;padding:18px;
+  display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s;
+  -webkit-user-select:none;}
+.daily-card:active{transform:scale(.98);}
+.daily-icon{font-size:2rem;}
+.daily-info{flex:1;}
+.daily-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:2px;}
+.daily-meta{font-size:.78rem;color:var(--muted);}
+.daily-xp{background:rgba(255,209,102,.15);color:var(--warn);border:1px solid rgba(255,209,102,.3);
+  padding:4px 11px;border-radius:20px;font-size:.77rem;font-weight:700;white-space:nowrap;}
+
+.continue-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;
+  transition:all .2s;margin-bottom:9px;}
+.continue-card:active{transform:scale(.98);}
+.continue-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;
+  justify-content:center;font-size:1.25rem;flex-shrink:0;}
+.continue-info{flex:1;min-width:0;}
+.continue-title{font-weight:600;font-size:.87rem;margin-bottom:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.continue-sub{font-size:.75rem;color:var(--muted);}
+.prog-mini{height:3px;background:var(--border);border-radius:10px;margin-top:6px;overflow:hidden;}
+.prog-mini-fill{height:100%;background:var(--accent);border-radius:10px;}
+
+/* ══════════════════════════════════════
+   LEARN / TRILHA
+══════════════════════════════════════ */
+.trail-header{padding:20px 20px 10px;}
+.trail-tabs{display:flex;gap:6px;overflow-x:auto;padding:0 20px 14px;scrollbar-width:none;}
+.trail-tabs::-webkit-scrollbar{display:none;}
+.trail-tab{padding:7px 16px;border-radius:30px;background:var(--surface2);
+  border:1px solid var(--border);color:var(--muted);font-size:.8rem;font-weight:600;
+  cursor:pointer;white-space:nowrap;transition:all .2s;font-family:'DM Sans',sans-serif;
+  flex-shrink:0;}
+.trail-tab.active{background:var(--accent);color:#070914;border-color:var(--accent);}
+.trail-tab:active{transform:scale(.96);}
+
+.lesson-path{padding:0 20px 20px;display:flex;flex-direction:column;}
+.path-item{display:flex;gap:14px;padding:14px 0;cursor:pointer;position:relative;}
+.path-line{position:absolute;left:22px;top:52px;bottom:-14px;width:2px;
+  background:linear-gradient(to bottom,var(--border),transparent);}
+.path-circle{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:1rem;flex-shrink:0;border:2px solid var(--border);
+  background:var(--surface);transition:all .25s;position:relative;z-index:1;}
+.path-circle.done{background:var(--accent);border-color:var(--accent);color:#070914;}
+.path-circle.active-step{border-color:var(--accent);box-shadow:0 0 0 4px rgba(0,229,160,.15);}
+.path-circle.locked{opacity:.4;}
+.path-info{flex:1;padding-top:4px;}
+.path-label{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:2px;}
+.path-name{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:2px;}
+.path-desc{font-size:.8rem;color:var(--muted);line-height:1.5;}
+.path-pills{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;}
+.pill{padding:3px 9px;border-radius:20px;font-size:.68rem;font-weight:600;
+  background:var(--surface2);border:1px solid var(--border);color:var(--muted);}
+.pill.green{background:rgba(0,229,160,.1);color:var(--accent);border-color:rgba(0,229,160,.3);}
+
+/* ══════════════════════════════════════
+   LESSON ENGINE
+══════════════════════════════════════ */
+.lesson-top{display:flex;align-items:center;gap:12px;padding:14px 16px;
+  border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100;}
+.back-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);
+  padding:7px 12px;border-radius:8px;cursor:pointer;font-size:.8rem;
+  font-family:'DM Sans',sans-serif;flex-shrink:0;}
+.prog-wrap{flex:1;height:7px;background:var(--surface2);border-radius:20px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),#00ffc0);
+  border-radius:20px;transition:width .5s ease;}
+.prog-count{font-size:.78rem;color:var(--muted);white-space:nowrap;font-weight:600;}
+.lives-disp{display:flex;gap:2px;}
+.heart{font-size:.95rem;transition:all .3s;}
+.heart.lost{opacity:.2;filter:grayscale(1);}
+
+.lesson-body{flex:1;padding:20px 16px 24px;display:flex;align-items:flex-start;
+  justify-content:center;overflow-y:auto;}
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;
+  padding:24px 18px;max-width:640px;width:100%;}
+.q-type{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--accent);
+  font-weight:700;margin-bottom:10px;}
+.q-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;
+  margin-bottom:5px;line-height:1.4;white-space:pre-line;}
+.q-sub{color:var(--muted);font-size:.84rem;margin-bottom:20px;line-height:1.6;}
+
+.code-display{background:#060a12;border:1px solid var(--border);border-radius:10px;
+  padding:14px 16px;font-family:'DM Mono',monospace;font-size:.84rem;line-height:1.9;
+  margin-bottom:18px;overflow-x:auto;white-space:pre;}
+.kw{color:#c792ea}.fn{color:#82aaff}.str{color:#c3e88d}.num{color:#f78c6c}.cm{color:#546e7a}
+.blank{display:inline-block;min-width:64px;height:22px;background:rgba(0,229,160,.1);
+  border-bottom:2px solid var(--accent);border-radius:4px;vertical-align:middle;
+  cursor:pointer;transition:all .2s;text-align:center;line-height:22px;
+  font-size:.8rem;color:var(--accent);padding:0 6px;}
+.blank.filled{background:rgba(0,229,160,.2);}
+
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px;}
+@media(max-width:420px){.opts-grid{grid-template-columns:1fr;}}
+.opt-btn{background:var(--surface2);border:1.5px solid var(--border);border-radius:11px;
+  padding:12px 14px;font-family:'DM Mono',monospace;font-size:.84rem;color:var(--text);
+  cursor:pointer;text-align:left;transition:all .18s;display:flex;align-items:center;gap:9px;
+  width:100%;}
+.opt-btn:active{transform:scale(.97);}
+.opt-btn.selected{border-color:var(--accent3);background:rgba(108,99,255,.1);}
+.opt-btn.correct{background:rgba(0,229,160,.12);border-color:var(--accent);color:var(--accent);}
+.opt-btn.wrong{background:rgba(255,77,109,.1);border-color:var(--red);color:var(--red);}
+.opt-letter{width:22px;height:22px;border-radius:6px;background:var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;}
+
+.tokens-pool{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px;}
+.token{background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;
+  padding:8px 13px;font-family:'DM Mono',monospace;font-size:.84rem;cursor:pointer;
+  transition:all .18s;user-select:none;}
+.token:active{transform:scale(.95);}
+.token.used{opacity:.25;pointer-events:none;}
+.drop-zone{min-height:46px;background:rgba(0,229,160,.04);border:2px dashed rgba(0,229,160,.25);
+  border-radius:11px;padding:8px 12px;display:flex;flex-wrap:wrap;gap:7px;align-items:center;
+  margin-bottom:18px;font-size:.8rem;color:var(--muted);}
+.drop-zone .token{background:rgba(0,229,160,.1);border-color:rgba(0,229,160,.4);}
+
+.feedback{border-radius:11px;padding:13px 16px;display:none;
+  align-items:flex-start;gap:11px;margin-bottom:14px;}
+.feedback.correct{background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.3);}
+.feedback.wrong{background:rgba(255,77,109,.08);border:1px solid rgba(255,77,109,.25);}
+.feedback .fb-icon{font-size:1.3rem;flex-shrink:0;margin-top:1px;}
+.feedback .fb-text strong{display:block;margin-bottom:2px;font-size:.88rem;}
+.feedback .fb-text p{font-size:.8rem;color:var(--muted);line-height:1.5;}
+.feedback.correct .fb-text strong{color:var(--accent);}
+.feedback.wrong .fb-text strong{color:var(--red);}
+.lesson-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;
+  position:sticky;bottom:0;background:var(--bg);padding:12px 0 8px;
+  border-top:1px solid rgba(31,45,69,.6);margin-top:8px;z-index:10;}
+.hint-box{background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.25);
+  border-radius:9px;padding:11px 13px;margin-bottom:12px;font-size:.82rem;
+  color:var(--warn);line-height:1.6;display:none;}
+
+.completion-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;
+  padding:36px 24px;max-width:440px;width:100%;text-align:center;}
+.completion-emoji{font-size:3.5rem;margin-bottom:14px;}
+.completion-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:6px;}
+.completion-sub{color:var(--muted);font-size:.88rem;margin-bottom:22px;}
+.completion-stats{display:flex;gap:14px;justify-content:center;margin-bottom:26px;flex-wrap:wrap;}
+.cs-item{text-align:center;}
+.cs-num{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;}
+.cs-label{font-size:.72rem;color:var(--muted);margin-top:2px;}
+
+/* ══════════════════════════════════════
+   LIBRARY
+══════════════════════════════════════ */
+.lib-tabs{display:flex;gap:0;margin-bottom:16px;background:var(--surface2);
+  border-radius:12px;padding:4px;}
+.lib-tab{flex:1;padding:8px 6px;border-radius:9px;background:transparent;border:none;
+  color:var(--muted);font-weight:600;font-size:.77rem;cursor:pointer;transition:all .2s;
+  font-family:'DM Sans',sans-serif;text-align:center;}
+.lib-tab.active{background:var(--surface);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.3);}
+
+.search-bar-wrap{position:relative;margin-bottom:14px;}
+.search-bar-wrap input{width:100%;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:13px;padding:11px 44px 11px 16px;color:var(--text);font-size:.9rem;
+  font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;-webkit-appearance:none;}
+.search-bar-wrap input:focus{border-color:var(--accent);}
+.search-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--muted);}
+.chips-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;}
+.chip{padding:5px 13px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);
+  font-size:.77rem;font-weight:600;cursor:pointer;transition:all .18s;color:var(--muted);}
+.chip.active{background:rgba(0,229,160,.1);border-color:var(--accent);color:var(--accent);}
+.chip:active{transform:scale(.95);}
+
+.media-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  overflow:hidden;margin-bottom:12px;transition:all .2s;cursor:pointer;}
+.media-card:active{transform:scale(.98);}
+.media-thumb{width:100%;aspect-ratio:16/9;background:var(--surface2);
+  display:flex;align-items:center;justify-content:center;font-size:3rem;
+  position:relative;overflow:hidden;}
+.media-thumb img{width:100%;height:100%;object-fit:cover;}
+.play-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);
+  display:flex;align-items:center;justify-content:center;}
+.play-btn-big{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.9);
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
+.media-info{padding:14px;}
+.media-title{font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700;margin-bottom:5px;}
+.media-meta{display:flex;gap:8px;align-items:center;font-size:.75rem;color:var(--muted);flex-wrap:wrap;}
+.media-badge{padding:3px 8px;border-radius:20px;font-size:.68rem;font-weight:700;}
+.media-badge.video{background:rgba(255,107,53,.15);color:var(--accent2);}
+.media-badge.podcast{background:rgba(108,99,255,.15);color:var(--accent3);}
+.media-badge.article{background:rgba(0,229,160,.15);color:var(--accent);}
+
+.podcast-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:16px;margin-bottom:10px;display:flex;gap:14px;align-items:center;
+  cursor:pointer;transition:all .2s;}
+.podcast-card:active{transform:scale(.98);}
+.podcast-cover{width:60px;height:60px;border-radius:11px;
+  background:linear-gradient(135deg,var(--accent3),#a855f7);
+  display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;}
+.podcast-info{flex:1;min-width:0;}
+.podcast-title{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;margin-bottom:3px;}
+.podcast-meta{font-size:.75rem;color:var(--muted);}
+
+/* mini player */
+#mini-player{position:fixed;bottom:calc(var(--nav-h) + var(--safe-bottom));left:0;right:0;
+  background:var(--surface2);border-top:1px solid var(--border);
+  padding:10px 16px;display:none;align-items:center;gap:12px;z-index:290;}
+#mini-player.show{display:flex;}
+.mp-info{flex:1;min-width:0;}
+.mp-title{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mp-sub{font-size:.7rem;color:var(--muted);}
+
+/* ══════════════════════════════════════
+   WIKI / PESQUISA
+══════════════════════════════════════ */
+.wiki-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;
+  padding:16px;margin-bottom:10px;cursor:pointer;transition:all .2s;}
+.wiki-card:active{transform:scale(.98);}
+.wiki-card-title{font-family:'Syne',sans-serif;font-size:.93rem;font-weight:700;margin-bottom:5px;}
+.wiki-card-preview{color:var(--muted);font-size:.8rem;line-height:1.5;margin-bottom:8px;}
+.wiki-tag{padding:3px 9px;border-radius:20px;font-size:.7rem;font-weight:700;}
+.wiki-back{color:var(--accent);cursor:pointer;font-size:.85rem;font-weight:600;
+  margin-bottom:14px;display:inline-flex;align-items:center;gap:5px;padding:6px 0;}
+.wiki-full{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;}
+.wiki-content h2{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:10px;}
+.wiki-content h3{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin:16px 0 9px;}
+.wiki-content p{color:var(--muted);font-size:.85rem;line-height:1.7;margin-bottom:10px;}
+.wiki-content ul{color:var(--muted);font-size:.85rem;line-height:1.8;padding-left:18px;margin-bottom:10px;}
+.code-block{background:#060a12;border:1px solid var(--border);border-radius:9px;
+  padding:14px;font-family:'DM Mono',monospace;font-size:.8rem;line-height:1.8;
+  margin:10px 0;overflow-x:auto;white-space:pre;}
+
+/* ══════════════════════════════════════
+   RANKING
+══════════════════════════════════════ */
+.league-badge{display:flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,rgba(255,209,102,.15),rgba(255,107,53,.1));
+  border:1px solid rgba(255,209,102,.3);border-radius:12px;padding:8px 14px;}
+.rank-item{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid var(--border);}
+.rank-pos{width:26px;text-align:center;font-family:'Syne',sans-serif;font-size:.83rem;font-weight:800;color:var(--muted);}
+.rank-pos.gold{color:#ffd700}.rank-pos.silver{color:#c0c0c0}.rank-pos.bronze{color:#cd7f32}.rank-pos.you{color:var(--accent)}
+.rank-avatar{width:38px;height:38px;border-radius:50%;background:var(--surface2);
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:2px solid var(--border);}
+.rank-avatar.you-av{border-color:var(--accent);}
+.rank-name{flex:1;font-size:.85rem;font-weight:600;}
+.rank-bar-wrap{width:60px;height:5px;background:var(--surface2);border-radius:10px;overflow:hidden;}
+.rank-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent3),var(--accent));border-radius:10px;}
+.rank-xp{font-size:.77rem;color:var(--warn);font-weight:700;min-width:50px;text-align:right;}
+
+/* ══════════════════════════════════════
+   FRIENDS / SOCIAL
+══════════════════════════════════════ */
+.friend-item{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid var(--border);}
+.friend-av{width:42px;height:42px;border-radius:50%;background:var(--surface2);
+  display:flex;align-items:center;justify-content:center;font-size:1.2rem;
+  position:relative;border:2px solid var(--border);flex-shrink:0;}
+.friend-info{flex:1;min-width:0;}
+.friend-name{font-size:.88rem;font-weight:600;margin-bottom:2px;}
+.friend-meta{font-size:.75rem;color:var(--muted);}
+.friend-streak{font-size:.8rem;font-weight:700;color:var(--accent2);flex-shrink:0;}
+.online-dot{position:absolute;bottom:1px;right:1px;width:9px;height:9px;
+  border-radius:50%;background:var(--accent);border:2px solid var(--surface);}
+
+/* friend request */
+.req-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;
+  padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.req-actions{display:flex;gap:7px;flex-shrink:0;}
+
+/* tabs inside friends */
+.friends-tabs{display:flex;gap:0;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:16px;}
+.friends-tab{flex:1;padding:8px;border-radius:9px;background:transparent;border:none;
+  color:var(--muted);font-weight:600;font-size:.8rem;cursor:pointer;
+  transition:all .2s;font-family:'DM Sans',sans-serif;text-align:center;position:relative;}
+.friends-tab.active{background:var(--surface);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.notif-dot{position:absolute;top:4px;right:8px;width:7px;height:7px;
+  border-radius:50%;background:var(--red);border:1px solid var(--surface2);}
+
+/* ══════════════════════════════════════
+   PROFILE
+══════════════════════════════════════ */
+.profile-hero{padding:28px 20px 22px;
+  background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(108,99,255,.1),transparent);text-align:center;}
+.profile-av{width:76px;height:76px;border-radius:50%;background:var(--accent);
+  display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;
+  font-size:1.9rem;font-weight:800;color:#070914;margin:0 auto 10px;border:3px solid var(--accent);}
+.profile-name{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;margin-bottom:2px;}
+.profile-joined{font-size:.8rem;color:var(--muted);}
+.profile-stats{display:flex;gap:18px;justify-content:center;margin-top:18px;flex-wrap:wrap;}
+.pstat{text-align:center;}
+.pstat-num{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;}
+.pstat-label{font-size:.7rem;color:var(--muted);margin-top:2px;}
+.badges-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+.badge-item{background:var(--surface2);border:1px solid var(--border);border-radius:11px;
+  padding:13px 8px;text-align:center;}
+.badge-item.locked{opacity:.3;filter:grayscale(1);}
+.b-icon{font-size:1.5rem;margin-bottom:4px;}
+.b-name{font-size:.68rem;font-weight:600;color:var(--muted);}
+.history-item{display:flex;align-items:center;gap:11px;padding:10px;
+  background:var(--surface2);border-radius:9px;margin-bottom:7px;}
+.h-info{flex:1;}
+.h-title{font-size:.82rem;font-weight:600;margin-bottom:1px;}
+.h-date{font-size:.72rem;color:var(--muted);}
+.h-xp{font-size:.8rem;font-weight:700;color:var(--warn);}
+
+/* media modal */
+.video-container{position:relative;padding-bottom:56.25%;border-radius:11px;overflow:hidden;margin-bottom:14px;}
+.video-container iframe{position:absolute;inset:0;width:100%;height:100%;border:none;}
+.media-desc{font-size:.85rem;color:var(--muted);line-height:1.7;margin-bottom:14px;}
+.media-tags{display:flex;gap:7px;flex-wrap:wrap;}
+.media-tag{padding:3px 10px;border-radius:20px;font-size:.73rem;font-weight:600;
+  background:var(--surface2);border:1px solid var(--border);color:var(--muted);}
+
+/* install banner */
+#install-banner{position:fixed;bottom:calc(var(--nav-h) + var(--safe-bottom) + 12px);
+  left:12px;right:12px;background:linear-gradient(135deg,var(--surface),var(--surface2));
+  border:1px solid var(--accent);border-radius:16px;padding:14px 16px;
+  display:none;align-items:center;gap:12px;z-index:400;
+  box-shadow:0 8px 32px rgba(0,229,160,.15);}
+#install-banner.show{display:flex;}
+.install-text{flex:1;font-size:.85rem;}
+.install-title{font-weight:700;color:var(--accent);margin-bottom:2px;}
+.install-sub{font-size:.75rem;color:var(--muted);}
+
+/* ── PULL TO REFRESH hint ── */
+.ptr-hint{text-align:center;padding:8px;font-size:.75rem;color:var(--muted);display:none;}
+
+/* ══════════════════════════════════════
+   MOBILE SUPPORT ENHANCEMENTS
+══════════════════════════════════════ */
+
+/* Safe area insets for notch/dynamic island devices */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+/* Prevent text resize on orientation change */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+/* Better touch scrolling */
+.main, .lesson-body, .modal { -webkit-overflow-scrolling: touch; }
+
+/* Larger touch targets for interactive elements */
+.bnav { min-height: 52px; padding: 10px 4px 8px; }
+.opt-btn { min-height: 52px; padding: 14px; }
+.token { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+.btn { min-height: 44px; }
+.btn-sm { min-height: 36px; }
+.path-item { min-height: 64px; }
+.continue-card { min-height: 64px; }
+.trail-tab { min-height: 40px; }
+.auth-tab { min-height: 44px; }
+.form-group input, .form-group textarea, .form-group select { min-height: 48px; font-size: 16px; /* prevents zoom on iOS */ }
+.search-bar-wrap input { font-size: 16px; min-height: 48px; }
+.back-btn { min-height: 40px; min-width: 64px; }
+
+/* Haptic-style feedback animations */
+@media (hover: none) {
+  .opt-btn:active { transform: scale(.96); transition: transform .1s; }
+  .continue-card:active { transform: scale(.97); transition: transform .1s; }
+  .daily-card:active { transform: scale(.97); transition: transform .1s; }
+  .media-card:active { transform: scale(.98); transition: transform .1s; }
+  .wiki-card:active { transform: scale(.98); transition: transform .1s; }
+  .token:active { transform: scale(.93); transition: transform .1s; }
+  .btn-primary:active { transform: scale(.96); filter: brightness(1.1); }
+  .trail-tab:active { transform: scale(.95); }
+}
+
+/* Swipe hint for trail tabs */
+.trail-tabs::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 32px;
+  background: linear-gradient(to right, transparent, var(--bg));
+  pointer-events: none;
+}
+.trail-tabs { position: relative; }
+
+/* Bottom nav: taller on small screens */
+@media (max-height: 700px) {
+  .bnav { min-height: 44px; padding: 6px 4px 4px; font-size: .55rem; }
+  .bnav .bi { font-size: 1.1rem; }
+  :root { --nav-h: 52px; }
+}
+
+/* Landscape phone support */
+@media (max-height: 500px) and (orientation: landscape) {
+  .bottom-nav { flex-direction: row; }
+  .bnav { min-height: 40px; padding: 4px 4px 2px; font-size: .5rem; }
+  .bnav .bi { font-size: 1rem; }
+  :root { --nav-h: 46px; }
+  .auth-container { padding-top: 16px; }
+  .auth-box { padding: 20px; }
+}
+
+/* Small phones (320px) */
+@media (max-width: 360px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .stat-num { font-size: 1.2rem; }
+  .nbadge { padding: 4px 7px; font-size: .7rem; }
+  .nav-avatar { width: 28px; height: 28px; font-size: .75rem; }
+  .hero-dash h1 { font-size: 1.25rem; }
+  .badges-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Extra-large phones / tablets */
+@media (min-width: 480px) {
+  .auth-box { padding: 40px 32px; }
+  .q-card { padding: 28px 24px; }
+  .opts-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 600px) {
+  .bottom-nav { justify-content: center; padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+  .bnav { max-width: 90px; }
+}
+
+/* iOS keyboard push-up fix */
+@supports (-webkit-touch-callout: none) {
+  .screen { min-height: -webkit-fill-available; }
+  .auth-container { min-height: -webkit-fill-available; }
+}
+
+/* Sticky input fix when virtual keyboard is open */
+.screen-lesson-active .lesson-actions {
+  position: sticky;
+  bottom: 0;
+  background: var(--bg);
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  z-index: 50;
+}
+
+/* Swipe navigation overlay hint */
+.swipe-indicator {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60px;
+  border-radius: 4px;
+  background: rgba(0,229,160,.3);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .3s;
+  z-index: 1000;
+}
+.swipe-indicator.left { left: 4px; }
+.swipe-indicator.right { right: 4px; }
+.swipe-indicator.visible { opacity: 1; }
+
+/* Better focus styles for accessibility */
+button:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Skeleton loading for cards */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 8px;
+}
+
+/* Pinch-zoom prevention for lesson code blocks */
+.code-display, .code-block {
+  touch-action: pan-x pan-y;
+  max-width: 100%;
+}
+
+/* Improve scrollbar hiding on mobile */
+.trail-tabs, .lib-tabs { scrollbar-width: none; }
+.trail-tabs::-webkit-scrollbar, .lib-tabs::-webkit-scrollbar { display: none; }
+
+/* Full-screen modal on very small screens */
+@media (max-width: 380px) {
+  .modal { border-radius: 16px 16px 0 0; }
+  .modal.center { border-radius: 16px; margin: 16px; max-height: calc(100dvh - 32px); }
+}
+
+/* Progress bar glow on lesson */
+.prog-fill { box-shadow: 0 0 8px rgba(0,229,160,.4); }
+
+/* Floating action button style for lesson check */
+.lesson-check-fab {
+  position: fixed;
+  bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px);
+  left: 16px;
+  right: 16px;
+  z-index: 100;
+}
+
+/* Dark overlay for modal keyboard push */
+.modal-overlay.keyboard-open .modal {
+  max-height: 50dvh;
+}
+
+/* ══════════════════════════════════════
+   iOS-SPECIFIC FIXES & ENHANCEMENTS
+══════════════════════════════════════ */
+
+/* iOS Safari: fix 100vh bug — use dvh with fallback */
+@supports (height: 100dvh) {
+  .screen { min-height: 100dvh; }
+  .auth-container { min-height: 100dvh; }
+}
+/* Fallback for older iOS */
+@supports not (height: 100dvh) {
+  .screen { min-height: -webkit-fill-available; }
+  .auth-container { min-height: -webkit-fill-available; }
+  html { height: -webkit-fill-available; }
+}
+
+/* iOS: remove default input styling */
+input, textarea, select, button {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0;
+}
+/* Re-apply our border-radius after reset */
+.form-group input, .form-group textarea, .form-group select { border-radius: 10px; }
+.btn { border-radius: 12px; }
+.btn-sm { border-radius: 9px; }
+.search-bar-wrap input { border-radius: 13px; }
+
+/* iOS: momentum scrolling everywhere */
+* { -webkit-overflow-scrolling: touch; }
+
+/* iOS: fix position:fixed elements when keyboard is open */
+.bottom-nav {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
+}
+nav {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* iOS: safe area padding for notch/Dynamic Island/home indicator */
+nav {
+  padding-top: calc(14px + env(safe-area-inset-top, 0px));
+}
+.bottom-nav {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px));
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+:root {
+  --nav-h: calc(60px + env(safe-area-inset-bottom, 0px));
+}
+
+/* iOS: fix overscroll rubber-band showing white */
+html, body {
+  background: var(--bg);
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* iOS: tap callout disable for interactive elements */
+a, button, .opt-btn, .token, .daily-card, .continue-card,
+.media-card, .wiki-card, .path-item, .trail-tab, .bnav {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+/* But allow text selection in content areas */
+.q-title, .q-sub, .wiki-content, .media-desc, p, .path-desc {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* iOS: fix select dropdown arrow */
+.form-group select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7a99' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+/* iOS: blur backdrop for modals */
+@supports (-webkit-backdrop-filter: blur(16px)) {
+  .modal-overlay {
+    -webkit-backdrop-filter: blur(6px);
+  }
+  nav, .bottom-nav {
+    -webkit-backdrop-filter: blur(16px);
+  }
+}
+
+/* iOS: install prompt — show on iOS since beforeinstallprompt doesn't fire */
+#ios-install-banner {
+  display: none;
+  position: fixed;
+  bottom: calc(var(--nav-h) + 12px);
+  left: 12px; right: 12px;
+  background: linear-gradient(135deg, var(--surface), var(--surface2));
+  border: 1px solid var(--accent);
+  border-radius: 16px;
+  padding: 14px 16px;
+  align-items: center;
+  gap: 12px;
+  z-index: 400;
+  box-shadow: 0 8px 32px rgba(0,229,160,.15);
+  animation: slideUp .3s ease;
+}
+#ios-install-banner.show { display: flex; }
+.ios-install-steps {
+  font-size: .72rem;
+  color: var(--muted);
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* iOS: fix code block horizontal scroll */
+.code-display {
+  overflow-x: scroll;
+  -webkit-overflow-scrolling: touch;
+  /* Show scrollbar on iOS */
+  scrollbar-width: thin;
+}
+
+/* iOS: bounce-fix for auth screen */
+#screen-auth {
+  position: relative;
+  z-index: 0;
+}
+
+/* iOS: smooth font rendering */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* iOS: prevent gray flash on button tap */
+* { -webkit-tap-highlight-color: transparent; }
+
+/* iOS: fix sticky top nav on Safari */
+nav {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+}
+
+/* iOS: larger bottom safe area for home indicator phones (iPhone X+) */
+@media (device-height: 812px), (device-height: 844px),
+       (device-height: 852px), (device-height: 896px),
+       (device-height: 926px), (device-height: 932px) {
+  .bottom-nav {
+    padding-bottom: max(env(safe-area-inset-bottom), 20px);
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- Mini Player -->
+<div id="mini-player">
+  <div style="font-size:1.4rem" id="mp-icon">🎧</div>
+  <div class="mp-info"><div class="mp-title" id="mp-title">—</div><div class="mp-sub" id="mp-sub"></div></div>
+  <button class="btn btn-sm" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:6px 10px" onclick="closeMiniPlayer()">✕</button>
+</div>
+
+<!-- Install Banner -->
+<div id="install-banner">
+  <div style="font-size:1.8rem">📲</div>
+  <div class="install-text">
+    <div class="install-title">Instalar CodeQuest</div>
+    <div class="install-sub">Adicione à tela inicial para usar como app</div>
+  </div>
+  <button class="btn btn-primary btn-sm" id="install-btn">Instalar</button>
+  <button class="btn btn-sm" style="background:transparent;border:none;color:var(--muted);padding:6px" onclick="dismissInstall()">✕</button>
+</div>
+
+<!-- iOS Install Banner (Safari doesn't support beforeinstallprompt) -->
+<div id="ios-install-banner">
+  <div style="font-size:1.8rem">🍎</div>
+  <div class="install-text">
+    <div class="install-title">Adicionar à Tela Inicial</div>
+    <div class="ios-install-steps">
+      Toque em <span style="font-size:1rem">□↑</span> depois "Adicionar à Tela Inicial"
+    </div>
+  </div>
+  <button class="btn btn-sm" style="background:transparent;border:none;color:var(--muted);padding:6px;flex-shrink:0" onclick="dismissIosInstall()">✕</button>
+</div>
+<div id="screen-auth" class="screen">
+  <div class="auth-container">
+    <div class="auth-box">
+      <div class="auth-logo">Code<span>Quest</span></div>
+      <div class="auth-sub">Aprenda programação do zero,<br>do seu jeito 🚀</div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login',this)">Entrar</button>
+        <button class="auth-tab" onclick="switchAuthTab('register',this)">Criar conta</button>
+      </div>
+      <div id="form-login">
+        <div class="form-group">
+          <label>Email ou usuário</label>
+          <input id="login-user" type="text" placeholder="seu@email.com" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <div class="form-group">
+          <label>Senha</label>
+          <input id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-bottom:12px" onclick="doLogin()">Entrar →</button>
+        <div style="text-align:center;color:var(--muted);font-size:.8rem;margin:12px 0;position:relative">
+          <span style="background:var(--surface);padding:0 10px;position:relative;z-index:1">ou</span>
+          <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border)"></div>
+        </div>
+        <button class="btn btn-secondary" style="width:100%" onclick="demoLogin()">🎮 Entrar como visitante</button>
+      </div>
+      <div id="form-register" style="display:none">
+        <div class="form-group"><label>Seu nome</label><input id="reg-name" type="text" placeholder="João Silva" autocomplete="name"></div>
+        <div class="form-group"><label>Email</label><input id="reg-email" type="email" placeholder="seu@email.com" autocomplete="email"></div>
+        <div class="form-group"><label>Usuário</label><input id="reg-user" type="text" placeholder="joao_silva"></div>
+        <div class="form-group"><label>Senha</label><input id="reg-pass" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password"></div>
+        <button class="btn btn-primary" style="width:100%" onclick="doRegister()">Criar conta 🚀</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     SCREEN: HOME
+════════════════════════════ -->
+<div id="screen-home" class="screen">
+  <nav>
+    <div class="logo" onclick="goTo('screen-home')">Code<span>Quest</span></div>
+    <div class="nav-right">
+      <div class="nbadge streak">🔥<span id="nav-streak">0</span></div>
+      <div class="nbadge xp">⚡<span id="nav-xp">0</span></div>
+      <div class="nbadge lives">❤️<span id="nav-lives">5</span></div>
+      <div class="nav-avatar" id="nav-avatar" onclick="goTo('screen-profile')">?</div>
+    </div>
+  </nav>
+  <div class="main">
+    <div class="hero-dash">
+      <h1 id="home-greeting">Olá! 👋</h1>
+      <p>Continue sua jornada de aprendizado</p>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" style="color:var(--accent2)" id="stat-streak">0</div><div class="stat-label">🔥 Streak</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--warn)" id="stat-xp">0</div><div class="stat-label">⚡ XP</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--accent)" id="stat-lessons">0</div><div class="stat-label">📚 Lições</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--accent3)" id="stat-acc">0%</div><div class="stat-label">🎯 Acerto</div></div>
+    </div>
+    <div class="section">
+      <div class="section-head"><div class="section-title">☀️ Desafio do Dia</div></div>
+      <div class="daily-card" onclick="goTo('screen-learn')">
+        <div class="daily-icon">🎯</div>
+        <div class="daily-info">
+          <div class="daily-title" id="daily-title">Carregando...</div>
+          <div class="daily-meta" id="daily-meta"></div>
+        </div>
+        <div class="daily-xp" id="daily-xp-badge">+XP</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title">▶️ Continuar</div>
+        <span class="section-link" onclick="goTo('screen-learn')">Ver trilhas →</span>
+      </div>
+      <div id="continue-cards"></div>
+    </div>
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title">🎬 Em Destaque</div>
+        <span class="section-link" onclick="goTo('screen-library')">Ver tudo →</span>
+      </div>
+      <div id="featured-media"></div>
+    </div>
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title">👥 Amigos</div>
+        <span class="section-link" onclick="goTo('screen-friends')">Ver todos →</span>
+      </div>
+      <div id="home-friends"></div>
+    </div>
+  </div>
+  <div class="bottom-nav" id="bnav-home">
+    <button class="bnav active" onclick="navTo('screen-home',this)"><span class="bi">🏠</span>Início</button>
+    <button class="bnav" onclick="navTo('screen-learn',this)"><span class="bi">📚</span>Aprender</button>
+    <button class="bnav" onclick="navTo('screen-library',this)"><span class="bi">🎬</span>Mídia</button>
+    <button class="bnav" onclick="navTo('screen-search',this)"><span class="bi">🔍</span>Wiki</button>
+    <button class="bnav" onclick="navTo('screen-rank',this)"><span class="bi">🏆</span>Ranking</button>
+    <button class="bnav" onclick="navTo('screen-profile',this)"><span class="bi">👤</span>Perfil</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     SCREEN: LEARN
+════════════════════════════ -->
+<div id="screen-learn" class="screen">
+  <nav>
+    <div class="logo">Code<span>Quest</span></div>
+    <div class="nav-right">
+      <div class="nbadge streak">🔥<span id="learn-streak">0</span></div>
+      <div class="nbadge xp">⚡<span id="learn-xp">0</span></div>
+    </div>
+  </nav>
+  <div class="main">
+    <div class="trail-header">
+      <div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800">Trilhas</div>
+      <div style="color:var(--muted);font-size:.82rem;margin-top:3px">Escolha sua linguagem</div>
+    </div>
+    <div class="trail-tabs" id="trail-tabs"></div>
+    <div class="lesson-path" id="lesson-path"></div>
+  </div>
+  <div class="bottom-nav">
+    <button class="bnav" onclick="navTo('screen-home',this)"><span class="bi">🏠</span>Início</button>
+    <button class="bnav active" onclick="navTo('screen-learn',this)"><span class="bi">📚</span>Aprender</button>
+    <button class="bnav" onclick="navTo('screen-library',this)"><span class="bi">🎬</span>Mídia</button>
+    <button class="bnav" onclick="navTo('screen-search',this)"><span class="bi">🔍</span>Wiki</button>
+    <button class="bnav" onclick="navTo('screen-rank',this)"><span class="bi">🏆</span>Ranking</button>
+    <button class="bnav" onclick="navTo('screen-profile',this)"><span class="bi">👤</span>Perfil</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     SCREEN: LESSON
+════════════════════════════ -->
+<div id="screen-lesson" class="screen">
+  <div class="lesson-top">
+    <button class="back-btn" id="lesson-back">← Sair</button>
+    <div class="prog-wrap"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="prog-count" id="prog-count">1/1</div>
+    <div class="lives-disp" id="lives-disp"></div>
+  </div>
+  <div class="lesson-body" id="lesson-body"></div>
+</div>
+
+<!-- ════════════════════════════
+     SCREEN: LIBRARY
+════════════════════════════ -->
+<div id="screen-library" class="screen">
+  <nav><div class="logo">Code<span>Quest</span></div></nav>
+  <div class="main">
+    <div style="padding:18px 20px 0">
+      <div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:3px">Biblioteca</div>
+      <div style="color:var(--muted);font-size:.82rem;margin-bottom:14px">Vídeos, podcasts e artigos</div>
+      <div class="search-bar-wrap">
+        <input id="lib-search" type="text" placeholder="Buscar conteúdo..." oninput="filterLibrary(this.value)">
+        <span class="search-icon">🔍</span>
+      </div>
+      <div class="lib-tabs">
+        <button class="lib-tab active" onclick="setLibTab('all',this)">Todos</button>
+        <button class="lib-tab" onclick="setLibTab('video',this)">🎬</button>
+        <button class="lib-tab" onclick="setLibTab('podcast',this)">🎧</button>
+        <button class="lib-tab" onclick="setLibTab('article',this)">📝</button>
+      </div>
+      <div class="chips-row" id="lib-chips"></div>
+    </div>
+    <div style="padding:0 20px 20px" id="lib-content"></div>
+  </div>
+  <div class="bottom-nav">
+    <button class="bnav" onclick="navTo('screen-home',this)"><span class="bi">🏠</span>Início</button>
+    <button class="bnav" onclick="navTo('screen-learn',this)"><span class="bi">📚</span>Aprender</button>
+    <button class="bnav active" onclick="navTo('screen-library',this)"><span class="bi">🎬</span>Mídia</button>
+    <button class="bnav" onclick="navTo('screen-search',this)"><span class="bi">🔍</span>Wiki</button>
+    <button class="bnav" onclick="navTo('screen-rank',this)"><span class="bi">🏆</span>Ranking</button>
+    <button class="bnav" onclick="navTo('screen-profile',this)"><span class="bi">👤</span>Perfil</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     SCREEN: SEARCH / WIKI
+════════════════════════════ -->
+<div id="screen-search" class="screen">
+  <nav><div class="logo">Code<span>Quest</span></div></nav>
+  <div class="main">
+    <div style="padding:18px 20px 0">
+      <div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:3px">Pesquisa</div>
+      <div style="color:var(--muted);font-size:.82rem;margin-bottom:14px">Conceitos, sintaxe, documentação</div>
+      <div class="search-bar-wrap">
+        <input id="search-input" type="text" placeholder="Buscar conceito..." oninput="doSearch()">
+        <span class="search-icon">🔍</span>
+      </div>
+      <div class="chips-row" id="topic-chips"></div>
+    </div>
+    <div style="padding:0 20px 20px">
+      <div id="search-results"></div>
+      <div id="wiki-view" style="display:none"></div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <button class="bnav" onclick="navTo('screen-home',this)"><span class="bi">🏠</span>Início</button>
+    <button class="bnav" onclick="navTo('screen-learn',this)"><span class="bi">📚</span>Aprender</button>
+    <button class="bnav" onclick="navTo('screen-library',this)"><span class="bi">🎬</span>Mídia</button>
+    <button class="bnav active" onclick="navTo('screen-search',this)"><span class="bi">🔍</span>Wiki</button>
+    <button class="bnav" onclick="navTo('screen-rank',this)"><span class="bi">🏆</span>Ranking</button>
+    <button class="bnav" onclick="navTo('screen-profile',this)"><span class="bi">👤</span>Perfil</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     SCREEN: RANK
+════════════════════════════ -->
+<div id="screen-rank" class="screen">
+  <nav>
+    <div class="logo">Code<span>Quest</span></div>
+    <div class="nav-right"><div class="nbadge xp">⚡<span id="rank-xp">0</span></div></div>
+  </nav>
+  <div class="main">
+    <div style="padding:18px 20px 14px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800">Ranking</div>
+        <div style="color:var(--muted);font-size:.78rem;margin-top:2px" id="league-timer"></div>
+      </div>
+      <div class="league-badge">
+        <div style="font-size:1.4rem" id="league-emoji">🥉</div>
+        <div style="font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;color:var(--warn)" id="league-name">Bronze</div>
+      </div>
+    </div>
+    <div style="padding:0 20px 20px" id="ranking-list"></div>
+  </div>
+  <div class="bottom-nav">
+    <button class="bnav" onclick="navTo('screen-home',this)"><span class="bi">🏠</span>Início</button>
+    <button class="bnav" onclick="navTo('screen-learn',this)"><span class="bi">📚</span>Aprender</button>
+    <button class="bnav" onclick="navTo('screen-library',this)"><span class="bi">🎬</span>Mídia</button>
+    <button class="bnav" onclick="navTo('screen-search',this)"><span class="bi">🔍</span>Wiki</button>
+    <button class="bnav active" onclick="navTo('screen-rank',this)"><span class="bi">🏆</span>Ranking</button>
+    <button class="bnav" onclick="navTo('screen-profile',this)"><span class="bi">👤</span>Perfil</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     SCREEN: FRIENDS (SOCIAL)
+════════════════════════════ -->
+<div id="screen-friends" class="screen">
+  <nav>
+    <div class="logo">Code<span>Quest</span></div>
+    <div class="nav-right">
+      <button class="btn btn-primary btn-sm" onclick="openModal('modal-search-friend')">+ Adicionar</button>
+    </div>
+  </nav>
+  <div class="main">
+    <div style="padding:16px 20px 0">
+      <div class="friends-tabs">
+        <button class="friends-tab active" onclick="setFriendsTab('friends',this)">Amigos</button>
+        <button class="friends-tab" onclick="setFriendsTab('requests',this)" id="tab-requests">Pedidos<span class="notif-dot" id="req-dot" style="display:none"></span></button>
+        <button class="friends-tab" onclick="setFriendsTab('sent',this)">Enviados</button>
+      </div>
+      <div class="search-bar-wrap" id="friends-search-wrap">
+        <input type="text" placeholder="Filtrar amigos..." oninput="filterFriends(this.value)" id="friends-filter-input">
+        <span class="search-icon">🔍</span>
+      </div>
+    </div>
+    <div style="padding:0 20px 20px" id="friends-list"></div>
+  </div>
+  <div class="bottom-nav">
+    <button class="bnav" onclick="navTo('screen-home',this)"><span class="bi">🏠</span>Início</button>
+    <button class="bnav" onclick="navTo('screen-learn',this)"><span class="bi">📚</span>Aprender</button>
+    <button class="bnav" onclick="navTo('screen-library',this)"><span class="bi">🎬</span>Mídia</button>
+    <button class="bnav" onclick="navTo('screen-search',this)"><span class="bi">🔍</span>Wiki</button>
+    <button class="bnav active" onclick="navTo('screen-rank',this)"><span class="bi">🏆</span>Ranking</button>
+    <button class="bnav" onclick="navTo('screen-profile',this)"><span class="bi">👤</span>Perfil</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     SCREEN: PROFILE
+════════════════════════════ -->
+<div id="screen-profile" class="screen">
+  <nav>
+    <div class="logo">Code<span>Quest</span></div>
+    <div class="nav-right">
+      <button class="btn btn-secondary btn-sm" onclick="openEditProfile()">✏️ Editar</button>
+      <button class="btn btn-danger btn-sm" onclick="doLogout()">Sair</button>
+    </div>
+  </nav>
+  <div class="main" id="profile-main"></div>
+  <div class="bottom-nav">
+    <button class="bnav" onclick="navTo('screen-home',this)"><span class="bi">🏠</span>Início</button>
+    <button class="bnav" onclick="navTo('screen-learn',this)"><span class="bi">📚</span>Aprender</button>
+    <button class="bnav" onclick="navTo('screen-library',this)"><span class="bi">🎬</span>Mídia</button>
+    <button class="bnav" onclick="navTo('screen-search',this)"><span class="bi">🔍</span>Wiki</button>
+    <button class="bnav" onclick="navTo('screen-rank',this)"><span class="bi">🏆</span>Ranking</button>
+    <button class="bnav active" onclick="navTo('screen-profile',this)"><span class="bi">👤</span>Perfil</button>
+  </div>
+</div>
+
+<!-- ══════════════ MODALS ══════════════ -->
+<!-- Search Friend -->
+<div class="modal-overlay" id="modal-search-friend">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">👥 Adicionar Amigo</div>
+    <div class="form-group">
+      <label>Buscar por nome ou usuário</label>
+      <input id="friend-search-input" type="text" placeholder="nome ou @usuario" oninput="searchUsers(this.value)" autocomplete="off">
+    </div>
+    <div id="user-search-results" style="margin-bottom:14px"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-search-friend')">Cancelar</button>
+    </div>
+  </div>
+</div>
+<!-- Edit Profile -->
+<div class="modal-overlay" id="modal-editprofile">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ Editar Perfil</div>
+    <div class="form-group"><label>Nome</label><input id="edit-name-input" type="text"></div>
+    <div class="form-group"><label>Bio</label><textarea id="edit-bio-input" placeholder="Conta um pouco sobre você..."></textarea></div>
+    <div class="form-group"><label>Emoji / Avatar</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px" id="emoji-picker">
+        🧑👩‍💻👨‍💻🧑‍💻👩‍🎓👨‍🎓🦸🧙🤖👾🐍⚡🔥💎🚀
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-editprofile')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" onclick="saveProfile()">Salvar</button>
+    </div>
+  </div>
+</div>
+<!-- Media Viewer -->
+<div class="modal-overlay" id="modal-media">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="modal-media-content"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('modal-media')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  STATE & STORAGE
+// ══════════════════════════════════════════════════════
+const STATE = {
+  user: null,
+  currentTrail: 'logic',
+  currentLesson: null,
+  currentExIdx: 0,
+  droppedTokens: [],
+  answeredCorrectly: false,
+  lessonLives: 5,
+  lessonXP: 0,
+  lessonCorrect: 0,
+  lessonTotal: 0,
+  selectedOpt: null,
+  libType: 'all',
+  libFilter: 'all',
+  libSearch: '',
+  friendsTab: 'friends',
+};
+
+const S = {
+  set(k,v){ try{ localStorage.setItem('cq_'+k, JSON.stringify(v)); }catch(e){} },
+  get(k,d){ try{ const v=localStorage.getItem('cq_'+k); return v!=null?JSON.parse(v):d; }catch(e){ return d; } }
+};
+
+const getUsers    = ()=> S.get('users',{});
+const saveUsers   = u => S.set('users',u);
+const getCurrent  = ()=> S.get('cur',null);
+const setCurrent  = e => S.set('cur',e);
+const getUser     = e => getUsers()[e]||null;
+
+function updateUser(email,data){
+  const users=getUsers();
+  users[email]={...users[email],...data};
+  saveUsers(users);
+  if(STATE.user&&STATE.user.email===email){
+    STATE.user=users[email];
+    updateNavStats();
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  CURRICULUM DATA
+// ══════════════════════════════════════════════════════
+const TRAILS = {
+  logic:      {name:'🧩 Lógica',     color:'var(--accent3)'},
+  python:     {name:'🐍 Python',      color:'var(--accent)'},
+  javascript: {name:'⚡ JavaScript',  color:'var(--warn)'},
+  html_css:   {name:'🌐 HTML/CSS',    color:'#e34f26'},
+  sql:        {name:'🗄️ SQL',         color:'var(--warn)'},
+  git:        {name:'🌿 Git',         color:'#f05032'},
+  java:       {name:'☕ Java',         color:'#f89820'},
+  typescript: {name:'🔷 TypeScript',  color:'#3178c6'},
+  algorithms: {name:'🔢 Algoritmos',  color:'var(--accent2)'},
+};
+
+const LESSONS = {
+  logic:[
+    {id:'lg0',name:'O que é programação?',desc:'Algoritmos, variáveis e o primeiro passo de tudo.',icon:'🧠',xp:30,exercises:[
+      {type:'Múltipla Escolha',title:'O que é um algoritmo?',sub:'A base de toda programação',kind:'multiple',
+       options:['Um tipo de computador','Sequência de passos para resolver um problema','Uma linguagem de programação','Um banco de dados'],
+       correct:1,explain:'Algoritmo é uma sequência finita de instruções para resolver um problema. Todo programa é um algoritmo!'},
+      {type:'Múltipla Escolha',title:'O que é uma variável?',sub:'Pense em uma caixinha para guardar dados',kind:'multiple',
+       options:['Um número fixo','Espaço na memória para guardar um valor','Um tipo de loop','Uma condição'],
+       correct:1,explain:'Variável é como uma caixa nomeada onde você guarda valores. O valor pode mudar ao longo do programa.'},
+      {type:'Múltipla Escolha',title:'Qual é a ordem correta de um algoritmo "fazer café"?',sub:'Pense na sequência lógica',kind:'multiple',
+       options:['Comer→Montar→Pegar pão','Pegar pão→Montar→Comer','Montar→Comer→Pegar pão','Comer→Pegar pão→Montar'],
+       correct:1,explain:'Algoritmos têm ORDEM. Você precisa do pão antes de montar, e montar antes de comer!'},
+    ]},
+    {id:'lg1',name:'Operadores Lógicos',desc:'AND, OR, NOT — a base do raciocínio computacional.',icon:'⚙️',xp:35,exercises:[
+      {type:'Múltipla Escolha',title:'True AND False = ?',sub:'AND só é True quando AMBOS são True',kind:'multiple',
+       options:['True','False','Null','Erro'],correct:1,explain:'AND: True somente se AMBOS forem True. False AND qualquer_coisa = False.'},
+      {type:'Múltipla Escolha',title:'True OR False = ?',sub:'OR é True se PELO MENOS UM for True',kind:'multiple',
+       options:['True','False','Null','Erro'],correct:0,explain:'OR: True se pelo menos um for True. Só False quando AMBOS são False.'},
+      {type:'Múltipla Escolha',title:'NOT True = ?',sub:'NOT inverte o valor',kind:'multiple',
+       options:['True','False','Null','Erro'],correct:1,explain:'NOT inverte: NOT True = False, NOT False = True.'},
+    ]},
+    {id:'lg2',name:'Condicionais',desc:'Se isso, então faça aquilo — decisões no código.',icon:'🔀',xp:40,exercises:[
+      {type:'Múltipla Escolha',title:'O que faz o "se/então" (if)?',sub:'Estrutura de decisão básica',kind:'multiple',
+       options:['Repete código N vezes','Executa apenas se a condição for verdadeira','Armazena valores','Agrupa funções'],
+       correct:1,explain:'if executa um bloco SOMENTE quando a condição é verdadeira. Base das decisões em qualquer linguagem.'},
+      {type:'Monte o Código',title:'Ordene: verificar se pode votar (idade >= 18)',sub:'SE → condição → ENTÃO → resultado → SENÃO',kind:'reorder',
+       tokens:['SE','idade >= 18','ENTÃO','escreva("Pode votar")','SENÃO','escreva("Não pode votar")'],
+       correct:['SE','idade >= 18','ENTÃO','escreva("Pode votar")','SENÃO','escreva("Não pode votar")'],
+       explain:'SE (condição) ENTÃO (verdadeiro) SENÃO (falso) — estrutura base de todas as linguagens.'},
+    ]},
+    {id:'lg3',name:'Loops e Repetição',desc:'Faça o computador repetir sem copiar código.',icon:'🔁',xp:40,exercises:[
+      {type:'Múltipla Escolha',title:'Quando usar um loop?',sub:'Pense em situações do dia a dia',kind:'multiple',
+       options:['Para declarar variáveis','Para repetir uma ação N vezes','Para comparar valores','Para criar funções'],
+       correct:1,explain:'Loops repetem instruções. Ex: imprimir 1 a 100, processar lista de usuários.'},
+      {type:'Múltipla Escolha',title:'O que causa loop infinito?',sub:'Cuidado: trava o programa',kind:'multiple',
+       options:['Variável zero','Condição que nunca vira false','Erro de sintaxe','Muitas variáveis'],
+       correct:1,explain:'Se a condição do loop nunca vira false, ele executa para sempre e o programa trava!'},
+    ]},
+  ],
+  python:[
+    {id:'py1',name:'Variáveis e Tipos',desc:'int, float, str, bool — como Python guarda dados.',icon:'📦',xp:40,exercises:[
+      {type:'Múltipla Escolha',title:'Tipo de um número inteiro em Python?',sub:'Nome vem do inglês "integer"',kind:'multiple',
+       options:['float','str','int','bool'],correct:2,explain:'int = inteiros (1,42,-7). float = decimais. str = texto. bool = True/False.'},
+      {type:'Múltipla Escolha',title:'O que imprime?\nnome = "João"\nprint(nome)',sub:'O que print() exibe?',kind:'multiple',
+       options:['nome','João','"João"','Erro'],correct:1,explain:'print(nome) imprime o CONTEÚDO da variável. Como nome="João", imprime João sem aspas.'},
+      {type:'Complete o Código',title:'Declare variável "idade" com valor 20',sub:'Preencha os espaços',kind:'fillin',
+       code:'<b0> = <b1>',blanks:['idade','20'],options:['idade','nome','20','30','True','"texto"'],
+       explain:'Python: nome_variavel = valor. Sem declaração de tipo — o Python descobre sozinho!'},
+    ]},
+    {id:'py2',name:'if / else',desc:'Ensine o programa a tomar decisões.',icon:'🔀',xp:45,exercises:[
+      {type:'Múltipla Escolha',title:'Operador de igualdade em Python?',sub:'Diferença entre atribuir e comparar',kind:'multiple',
+       options:['= (simples)','== (duplo)','=== (triplo)',':= (walrus)'],correct:1,
+       explain:'= atribui (x=5). == compara (x==5). Não existe === em Python.'},
+      {type:'Monte o Código',title:'if/else: verifica se número é positivo',sub:'Tokens na ordem certa',kind:'reorder',
+       tokens:['if num > 0:','    print("Positivo")','else:','    print("Negativo")'],
+       correct:['if num > 0:','    print("Positivo")','else:','    print("Negativo")'],
+       explain:'if CONDIÇÃO: bloco_true / else: bloco_false — bloco indentado com 4 espaços.'},
+    ]},
+    {id:'py3',name:'Loops for/while',desc:'Repita sem reescrever código.',icon:'🔁',xp:50,exercises:[
+      {type:'Múltipla Escolha',title:'O que range(5) gera?',sub:'range() cria sequência',kind:'multiple',
+       options:['[1,2,3,4,5]','[0,1,2,3,4]','[0,1,2,3,4,5]','[1,2,3,4]'],correct:1,
+       explain:'range(5) gera 0,1,2,3,4 — começa em 0, vai até n-1.'},
+      {type:'Complete o Código',title:'Loop que imprime 1 a 5',sub:'Use for e range',kind:'fillin',
+       code:'<b0> i <b1> range(1, 6):\n  print(i)',blanks:['for','in'],options:['for','while','in','of','at','do'],
+       explain:'for VARIAVEL in ITERAVEL: — range(1,6) = [1,2,3,4,5].'},
+    ]},
+    {id:'py4',name:'Funções (def)',desc:'Blocos de código reutilizáveis.',icon:'🔧',xp:55,exercises:[
+      {type:'Múltipla Escolha',title:'Como definir função em Python?',sub:'Palavra-chave de declaração',kind:'multiple',
+       options:['function nome():','def nome():','func nome():','define nome():'],correct:1,
+       explain:'Python usa def: def nome_funcao(parametros):'},
+      {type:'Complete o Código',title:'Função que retorna o dobro',sub:'Use def e return',kind:'fillin',
+       code:'<b0> dobro(n):\n  <b1> n * 2',blanks:['def','return'],options:['def','return','func','give','class','yield'],
+       explain:'def declara, return devolve. Sem return a função retorna None.'},
+    ]},
+    {id:'py5',name:'Listas e Dicionários',desc:'Estruturas de dados fundamentais.',icon:'📋',xp:60,exercises:[
+      {type:'Múltipla Escolha',title:'Acessar primeiro elemento?\nlista = [10,20,30]',sub:'Índices em Python',kind:'multiple',
+       options:['lista[1]','lista[0]','lista.first()','lista(0)'],correct:1,
+       explain:'Índices começam em 0! lista[0]=10, lista[1]=20, lista[2]=30.'},
+      {type:'Múltipla Escolha',title:'Adicionar elemento ao final de uma lista?',sub:'Método correto',kind:'multiple',
+       options:['.add()  ','.push() ','.append()','.insert()'],correct:2,
+       explain:'lista.append(valor) adiciona ao final. insert(pos,val) adiciona em posição específica.'},
+    ]},
+  ],
+  javascript:[
+    {id:'js1',name:'let, const, var',desc:'As três formas de declarar variáveis.',icon:'📦',xp:40,exercises:[
+      {type:'Múltipla Escolha',title:'Declara uma constante em JS?',sub:'Não pode ser reatribuída',kind:'multiple',
+       options:['var','let','const','fixed'],correct:2,
+       explain:'const = constante. let = variável de bloco. var = antiga (evite).'},
+      {type:'Monte o Código',title:'Declare "nome" com let',sub:'Declaração JavaScript',kind:'reorder',
+       tokens:['let','nome','=','"Carlos"',';'],
+       correct:['let','nome','=','"Carlos"',';'],
+       explain:'let nome = "valor"; — declaração + atribuição.'},
+    ]},
+    {id:'js2',name:'Arrow Functions',desc:'() => sintaxe moderna e concisa.',icon:'⚡',xp:50,exercises:[
+      {type:'Múltipla Escolha',title:'Arrow function que retorna x * 2?',sub:'Sintaxe moderna do JS',kind:'multiple',
+       options:['function(x){ x*2 }','(x) => x * 2','x -> x * 2','func x: x*2'],correct:1,
+       explain:'Arrow: (params) => expressão. Sem chaves = retorno implícito.'},
+      {type:'Complete o Código',title:'Converta para arrow function',sub:'function somar(a,b){ return a+b; }',kind:'fillin',
+       code:'<b0> somar = <b1> => a + b;',blanks:['const','(a, b)'],options:['const','let','var','(a, b)','a, b','[a,b]'],
+       explain:'const nome = (params) => expressão.'},
+    ]},
+    {id:'js3',name:'Arrays e Objetos',desc:'Estruturas de dados JavaScript.',icon:'📋',xp:55,exercises:[
+      {type:'Múltipla Escolha',title:'Adiciona elemento ao final do array?',sub:'push ou append?',kind:'multiple',
+       options:['.add()   ','.push()  ','.append()','.insert()'],correct:1,
+       explain:'array.push(valor) adiciona ao final. pop() remove do final.'},
+      {type:'Múltipla Escolha',title:'Acessar prop "nome" do objeto?\nconst u = {nome:"Ana",idade:25}',sub:'Notação de ponto',kind:'multiple',
+       options:['u->nome','u[nome]','u.nome','u:nome'],correct:2,
+       explain:'u.nome (ponto) é a forma mais comum. u["nome"] (colchete) também funciona.'},
+    ]},
+    {id:'js4',name:'DOM e Eventos',desc:'Manipule HTML com JavaScript.',icon:'🌐',xp:65,exercises:[
+      {type:'Múltipla Escolha',title:'Selecionar elemento por ID?',sub:'API do DOM',kind:'multiple',
+       options:['document.find("#id")','document.getElementById("id")','document.query("id")','DOM.get("id")'],correct:1,
+       explain:'getElementById("id"). Ou querySelector("#id") com sintaxe CSS.'},
+    ]},
+  ],
+  html_css:[
+    {id:'html1',name:'Tags HTML',desc:'h1, p, div, a, img — blocos da web.',icon:'🌐',xp:30,exercises:[
+      {type:'Múltipla Escolha',title:'Tag do título principal?',sub:'Hierarquia h1 a h6',kind:'multiple',
+       options:['<title>','<header>','<h1>','<big>'],correct:2,
+       explain:'<h1> é o mais importante. <h2>, <h3>... são subtítulos em ordem.'},
+      {type:'Complete o Código',title:'Crie parágrafo "Olá Mundo"',sub:'Tag de parágrafo',kind:'fillin',
+       code:'<<b0>>Olá Mundo</<b1>>',blanks:['p','p'],options:['p','div','span','h1','section','li'],
+       explain:'<p>texto</p> — abertura e fechamento obrigatórios.'},
+      {type:'Múltipla Escolha',title:'Criar link HTML?',sub:'Elemento âncora',kind:'multiple',
+       options:['<link href="url">','<a href="url">Texto</a>','<url>Texto</url>','<goto href="url">'],correct:1,
+       explain:'<a href="url">clicável</a>. target="_blank" abre em nova aba.'},
+    ]},
+    {id:'html2',name:'CSS Básico',desc:'Seletores, cores e o modelo de caixa.',icon:'🎨',xp:40,exercises:[
+      {type:'Múltipla Escolha',title:'Mudar cor do texto para vermelho?',sub:'Propriedade CSS',kind:'multiple',
+       options:['text-color: red','font-color: red','color: red','text: red'],correct:2,
+       explain:'color: red; — cor do texto. background-color: red; — cor de fundo.'},
+      {type:'Complete o Código',title:'Centralize um texto',sub:'Alinhamento horizontal',kind:'fillin',
+       code:'p {\n  <b0>: <b1>;\n}',blanks:['text-align','center'],options:['text-align','align','color','center','middle','red'],
+       explain:'text-align: center; centraliza. Outras: left, right, justify.'},
+    ]},
+    {id:'html3',name:'Flexbox',desc:'Layout moderno e flexível.',icon:'📐',xp:50,exercises:[
+      {type:'Múltipla Escolha',title:'Ativa o Flexbox?',sub:'Propriedade display',kind:'multiple',
+       options:['display: grid','display: flex','flex: true','layout: flex'],correct:1,
+       explain:'display: flex; ativa Flexbox no container. Filhos viram flex items.'},
+    ]},
+  ],
+  sql:[
+    {id:'sql1',name:'SELECT Básico',desc:'O comando mais usado do SQL.',icon:'🗄️',xp:40,exercises:[
+      {type:'Múltipla Escolha',title:'Selecionar TODOS os dados?',sub:'Comando de consulta',kind:'multiple',
+       options:['GET * FROM usuarios','FETCH ALL usuarios','SELECT * FROM usuarios','READ usuarios'],correct:2,
+       explain:'SELECT colunas FROM tabela; — * seleciona todas as colunas.'},
+      {type:'Monte o Código',title:'Buscar usuários com idade > 18',sub:'SELECT com WHERE',kind:'reorder',
+       tokens:['SELECT','*','FROM','usuarios','WHERE','idade > 18;'],
+       correct:['SELECT','*','FROM','usuarios','WHERE','idade > 18;'],
+       explain:'SELECT * FROM tabela WHERE condição; — WHERE filtra registros.'},
+    ]},
+    {id:'sql2',name:'INSERT, UPDATE, DELETE',desc:'CRUD completo.',icon:'✏️',xp:50,exercises:[
+      {type:'Múltipla Escolha',title:'Inserir novo registro?',sub:'C do CRUD = Create',kind:'multiple',
+       options:['ADD INTO','INSERT INTO','CREATE INTO','PUT INTO'],correct:1,
+       explain:'INSERT INTO tabela (colunas) VALUES (valores);'},
+    ]},
+  ],
+  git:[
+    {id:'git1',name:'Git Básico',desc:'Nunca perca seu código.',icon:'🌿',xp:35,exercises:[
+      {type:'Múltipla Escolha',title:'O que faz "git commit"?',sub:'Ação central do Git',kind:'multiple',
+       options:['Envia para GitHub','Salva snapshot local','Baixa repositório','Cria branch'],correct:1,
+       explain:'git commit salva um checkpoint local. git push envia ao servidor.'},
+      {type:'Monte o Código',title:'Fluxo: salvar e enviar mudanças',sub:'Sequência correta',kind:'reorder',
+       tokens:['git add .','git commit -m "msg"','git push origin main'],
+       correct:['git add .','git commit -m "msg"','git push origin main'],
+       explain:'add (prepara) → commit (salva local) → push (envia servidor).'},
+    ]},
+    {id:'git2',name:'Branches e Merge',desc:'Trabalhe em paralelo.',icon:'🌳',xp:50,exercises:[
+      {type:'Múltipla Escolha',title:'Para que serve uma branch?',sub:'Conceito fundamental',kind:'multiple',
+       options:['Deletar código','Desenvolvimento isolado paralelo','Fazer backup','Renomear arquivos'],correct:1,
+       explain:'Branch = linha paralela. Desenvolva features isoladas e dê merge na main.'},
+    ]},
+  ],
+  java:[
+    {id:'jv1',name:'Hello World em Java',desc:'Primeira classe, método main, System.out.',icon:'☕',xp:35,exercises:[
+      {type:'Múltipla Escolha',title:'Imprimir no console em Java?',sub:'Equivalente ao print() do Python',kind:'multiple',
+       options:['Console.write("x")','print("x")','System.out.println("x")','echo "x"'],correct:2,
+       explain:'System.out.println() imprime e pula linha. Verboso mas preciso.'},
+      {type:'Monte o Código',title:'Hello World em Java',sub:'Estrutura mínima',kind:'reorder',
+       tokens:['public class Main {','    public static void main(String[] args) {','        System.out.println("Hello!");','    }','}'],
+       correct:['public class Main {','    public static void main(String[] args) {','        System.out.println("Hello!");','    }','}'],
+       explain:'Java precisa: classe pública + método main (ponto de entrada) + código dentro.'},
+    ]},
+    {id:'jv2',name:'Tipos em Java',desc:'Java é fortemente tipado.',icon:'📦',xp:45,exercises:[
+      {type:'Múltipla Escolha',title:'Declarar inteiro em Java?',sub:'Java exige o tipo',kind:'multiple',
+       options:['var x = 5','x = 5','int x = 5','integer x = 5'],correct:2,
+       explain:'Java: int x = 5; — sempre declare o tipo. double, boolean, String, char são outros tipos.'},
+    ]},
+  ],
+  typescript:[
+    {id:'ts1',name:'Tipos Básicos',desc:'Tipagem estática sobre JavaScript.',icon:'🔷',xp:45,exercises:[
+      {type:'Múltipla Escolha',title:'Declarar string tipada em TypeScript?',sub:'Tipos explícitos',kind:'multiple',
+       options:['let nome = String','let nome: string','string nome','nome: string = '],correct:1,
+       explain:'TypeScript: let nome: string = "valor". Garante que nome sempre será string.'},
+      {type:'Complete o Código',title:'Função tipada',sub:'Recebe número, retorna número',kind:'fillin',
+       code:'function dobrar(n: <b0>): <b1> {\n  return n * 2;\n}',blanks:['number','number'],
+       options:['number','string','boolean','void','any','int'],
+       explain:'function nome(param: tipo): tipoRetorno — tipos protegem contra erros.'},
+    ]},
+  ],
+  algorithms:[
+    {id:'al1',name:'Busca Linear',desc:'Percorra elemento a elemento.',icon:'🔍',xp:45,exercises:[
+      {type:'Múltipla Escolha',title:'Complexidade da busca linear?',sub:'Notação Big O',kind:'multiple',
+       options:['O(1)','O(log n)','O(n)','O(n²)'],correct:2,
+       explain:'O(n) — pior caso: percorrer todos os n elementos.'},
+      {type:'Monte o Código',title:'Busca linear em Python',sub:'Ordem correta',kind:'reorder',
+       tokens:['def busca(lista, alvo):','    for item in lista:','        if item == alvo:','            return True','    return False'],
+       correct:['def busca(lista, alvo):','    for item in lista:','        if item == alvo:','            return True','    return False'],
+       explain:'Percorre cada elemento, compara com alvo. Retorna True se achar, False ao terminar.'},
+    ]},
+    {id:'al2',name:'Busca Binária',desc:'Divida e conquiste.',icon:'⚡',xp:60,exercises:[
+      {type:'Múltipla Escolha',title:'Pré-requisito da busca binária?',sub:'Por que não funciona em qualquer lista?',kind:'multiple',
+       options:['Lista vazia','Lista ordenada','Lista de números','Lista curta'],correct:1,
+       explain:'Busca binária exige lista ORDENADA. Ela divide ao meio — só funciona em ordem.'},
+    ]},
+    {id:'al3',name:'Big O Notation',desc:'Meça eficiência dos algoritmos.',icon:'📊',xp:70,exercises:[
+      {type:'Múltipla Escolha',title:'Complexidade de array[5]?',sub:'Acesso por índice',kind:'multiple',
+       options:['O(n)','O(log n)','O(1)','O(n²)'],correct:2,
+       explain:'O(1) = constante. Independe do tamanho do array.'},
+    ]},
+  ],
+};
+
+// ══════════════════════════════════════════════════════
+//  MEDIA DATA
+// ══════════════════════════════════════════════════════
+const MEDIA=[
+  {id:'v1',type:'video',lang:'python',title:'Python do Zero ao Primeiro Programa',channel:'freeCodeCamp',duration:'4h',thumb:'🐍',desc:'Curso completo de Python: variáveis, funções, listas, POO e projetos práticos.',tags:['python','iniciante'],youtubeId:'rfscVS0vtbw'},
+  {id:'v2',type:'video',lang:'javascript',title:'JavaScript para Iniciantes',channel:'Traversy Media',duration:'1h 40min',thumb:'⚡',desc:'JS moderno: variáveis, funções, arrays, DOM e muito mais.',tags:['javascript','iniciante'],youtubeId:'hdI2bqOjy3c'},
+  {id:'v3',type:'video',lang:'html_css',title:'HTML e CSS do Zero',channel:'Kevin Powell',duration:'45 min',thumb:'🌐',desc:'Primeira página web com HTML semântico e CSS moderno.',tags:['html','css','web'],youtubeId:'mU6anWqZJcc'},
+  {id:'v4',type:'video',lang:'logic',title:'Lógica de Programação — Entenda de Vez',channel:'Curso em Vídeo',duration:'22 min',thumb:'🧩',desc:'Pensamento computacional e algoritmos com exemplos do dia a dia.',tags:['lógica','iniciante'],youtubeId:'8mei6uVttho'},
+  {id:'v5',type:'video',lang:'git',title:'Git e GitHub para Iniciantes',channel:'Tech With Tim',duration:'30 min',thumb:'🌿',desc:'Controle de versão do zero: commits, branches e GitHub.',tags:['git','github'],youtubeId:'DVRQoVRzMIY'},
+  {id:'v6',type:'video',lang:'sql',title:'SQL do Zero',channel:'Programming with Mosh',duration:'1h',thumb:'🗄️',desc:'SELECT, WHERE, JOIN, GROUP BY com MySQL.',tags:['sql','banco de dados'],youtubeId:'7S_tz1z_5bA'},
+  {id:'v7',type:'video',lang:'java',title:'Java para Iniciantes',channel:'Bro Code',duration:'2h 30min',thumb:'☕',desc:'Java completo: tipos, POO, exceções.',tags:['java','oop'],youtubeId:'xk4_1vDrzzo'},
+  {id:'p1',type:'podcast',lang:'logic',title:'Ep.1 — Como Pensar Como Programador',show:'CodeCast Brasil',duration:'42 min',thumb:'🎙️',desc:'Pensamento computacional, como decompor problemas e por onde começar.',tags:['lógica','carreira','iniciante']},
+  {id:'p2',type:'podcast',lang:'python',title:'Ep.12 — Python: Vale a Pena em 2024?',show:'Dev Sem Enrolação',duration:'58 min',thumb:'🎙️',desc:'Ecossistema Python: IA, web, dados — por que continua popular.',tags:['python','carreira']},
+  {id:'p3',type:'podcast',lang:'javascript',title:'Ep.34 — React, Vue ou Angular?',show:'FrontCast',duration:'1h 10min',thumb:'🎙️',desc:'Comparação honesta dos frameworks. Quando usar cada um.',tags:['javascript','frameworks']},
+  {id:'p4',type:'podcast',lang:'git',title:'Ep.7 — Git Flow e Boas Práticas',show:'Dev Sem Enrolação',duration:'35 min',thumb:'🌿',desc:'Organização com Git, convenções de commit, trabalho em equipe.',tags:['git','boas práticas']},
+  {id:'a1',type:'article',lang:'logic',title:'O que é Algoritmo? Guia para Iniciantes',author:'CodeQuest',readTime:'8 min',thumb:'📝',desc:'Algoritmos com exemplos do cotidiano, sem código.',tags:['algoritmos','iniciante'],content:`<h2>O que é um Algoritmo?</h2><p>Sequência finita de instruções para resolver um problema. Você usa algoritmos sem perceber!</p><h3>Exemplo: Fazer café</h3><div class="code-block">1. Pegar a cafeteira\n2. Colocar filtro\n3. Adicionar café (2 colheres)\n4. Adicionar água (300ml)\n5. Ligar a cafeteira\n6. Aguardar 5 minutos\n7. Servir na xícara</div><p>Isso é um algoritmo — só que para um humano seguir. Na programação, o computador segue.</p><h3>Características</h3><ul><li><strong>Preciso:</strong> Cada passo claro</li><li><strong>Finito:</strong> Tem um fim</li><li><strong>Eficaz:</strong> Resolve o problema</li></ul>`},
+  {id:'a2',type:'article',lang:'python',title:'Variáveis em Python — Guia Completo',author:'CodeQuest',readTime:'10 min',thumb:'📝',desc:'Tipos, nomenclatura, escopo e boas práticas.',tags:['python','variáveis'],content:`<h2>Variáveis em Python</h2><p>Em Python, variáveis são criadas no momento da atribuição. Sem declarar o tipo!</p><h3>Sintaxe</h3><div class="code-block">nome = "João"\nidade = 25\naltura = 1.75\nativo = True</div><h3>Tipos básicos</h3><ul><li><strong>int</strong> — inteiros: 1, -5</li><li><strong>float</strong> — decimais: 3.14</li><li><strong>str</strong> — texto: "olá"</li><li><strong>bool</strong> — True/False</li><li><strong>list</strong> — [1,2,3]</li><li><strong>dict</strong> — {"chave":"valor"}</li></ul><h3>Verificar tipo</h3><div class="code-block">print(type(nome))  # str\nprint(type(idade)) # int</div>`},
+  {id:'a3',type:'article',lang:'javascript',title:'var, let e const — Qual Usar?',author:'CodeQuest',readTime:'7 min',thumb:'📝',desc:'Diferença e quando usar cada forma de declarar variáveis.',tags:['javascript','variáveis'],content:`<h2>var, let e const</h2><h3>const — Use por padrão</h3><div class="code-block">const nome = "Ana";\n// nome = "Maria"; ← ERRO!</div><h3>let — Para valores que mudam</h3><div class="code-block">let contador = 0;\ncontador = 1; // OK</div><h3>var — Evite!</h3><p>var tem hoisting e pode causar bugs. Use sempre let ou const.</p><h3>Regra prática</h3><ul><li>Use <strong>const</strong> por padrão</li><li>Use <strong>let</strong> se precisar reatribuir</li><li>Nunca use <strong>var</strong></li></ul>`},
+  {id:'a4',type:'article',lang:'html_css',title:'Flexbox: O Guia Visual',author:'CodeQuest',readTime:'15 min',thumb:'📝',desc:'Aprenda Flexbox com exemplos práticos.',tags:['css','flexbox','layout'],content:`<h2>CSS Flexbox</h2><p>Facilita alinhar e distribuir elementos.</p><h3>Ativar</h3><div class="code-block">.container {\n  display: flex;\n}</div><h3>justify-content (eixo principal)</h3><div class="code-block">.container {\n  justify-content: center; /* space-between, flex-start... */\n}</div><h3>Centralizar tudo</h3><div class="code-block">.container {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  height: 100vh;\n}</div>`},
+];
+
+// ══════════════════════════════════════════════════════
+//  WIKI DATA
+// ══════════════════════════════════════════════════════
+const WIKI=[
+  {id:'var-py',tag:'Python',tagColor:'var(--accent)',title:'Variáveis em Python',topics:['python','variáveis','tipos'],preview:'Como Python guarda dados: int, float, str, bool.',content:MEDIA.find(m=>m.id==='a2')?.content||''},
+  {id:'loops-py',tag:'Python',tagColor:'var(--accent)',title:'Loops em Python',topics:['python','for','while','loops'],preview:'for e while — repita sem reescrever código.',content:`<h2>Loops em Python</h2><h3>for</h3><div class="code-block">for i in range(5):\n    print(i)  # 0,1,2,3,4\n\nfor fruta in ["maçã","banana"]:\n    print(fruta)</div><h3>while</h3><div class="code-block">contador = 0\nwhile contador < 5:\n    print(contador)\n    contador += 1</div><h3>break e continue</h3><ul><li><strong>break</strong> — sai do loop</li><li><strong>continue</strong> — pula iteração</li></ul>`},
+  {id:'func-py',tag:'Python',tagColor:'var(--accent)',title:'Funções em Python',topics:['python','funções','def','return'],preview:'def e return — blocos reutilizáveis.',content:`<h2>Funções em Python</h2><div class="code-block">def saudar(nome):\n    return f"Olá, {nome}!"\n\nresultado = saudar("Maria")\nprint(resultado)  # Olá, Maria!</div><h3>Parâmetros padrão</h3><div class="code-block">def potencia(base, exp=2):\n    return base ** exp\n\npotencia(3)    # 9\npotencia(2,10) # 1024</div>`},
+  {id:'js-vars',tag:'JavaScript',tagColor:'var(--warn)',title:'var, let e const em JS',topics:['javascript','variáveis','escopo'],preview:'const, let e var — quando usar cada uma.',content:MEDIA.find(m=>m.id==='a3')?.content||''},
+  {id:'bigO',tag:'Algoritmos',tagColor:'var(--accent2)',title:'Notação Big O',topics:['algoritmos','big o','complexidade'],preview:'Mede eficiência — como o tempo cresce com n.',content:`<h2>Notação Big O</h2><ul><li><strong>O(1)</strong> — Constante: acesso por índice</li><li><strong>O(log n)</strong> — Logarítmico: busca binária</li><li><strong>O(n)</strong> — Linear: busca linear</li><li><strong>O(n²)</strong> — Dois loops aninhados</li></ul><div class="code-block"># O(1)\nlista[0]\n\n# O(n)\nfor item in lista: ...\n\n# O(n²)\nfor i in lista:\n    for j in lista: ...</div>`},
+  {id:'flexbox',tag:'HTML/CSS',tagColor:'#e34f26',title:'CSS Flexbox',topics:['css','flexbox','layout'],preview:'Sistema de layout moderno do CSS.',content:MEDIA.find(m=>m.id==='a4')?.content||''},
+  {id:'git-basics',tag:'Git',tagColor:'#f05032',title:'Git: Comandos Essenciais',topics:['git','github','terminal'],preview:'add, commit, push, pull — do dia a dia.',content:`<h2>Git — Essenciais</h2><div class="code-block">git init\ngit add .\ngit commit -m "mensagem"\ngit push origin main\ngit pull</div><h3>Branches</h3><div class="code-block">git branch feature\ngit checkout feature\ngit merge feature\ngit branch -d feature</div>`},
+  {id:'sql-select',tag:'SQL',tagColor:'var(--warn)',title:'SQL: SELECT e WHERE',topics:['sql','select','where','banco de dados'],preview:'Consulte dados, filtre e ordene.',content:`<h2>SQL — Consultas</h2><div class="code-block">SELECT * FROM usuarios;\nSELECT nome, email FROM usuarios;\nSELECT * FROM usuarios WHERE idade > 18;\nSELECT * FROM produtos ORDER BY preco ASC;\nSELECT * FROM produtos LIMIT 10;</div>`},
+];
+
+const MOCK_PLAYERS=[
+  {name:'Ana Silva',emoji:'👩',xp:920,streak:15,lessons:24,username:'ana_silva'},
+  {name:'Pedro Dev',emoji:'👨‍💻',xp:780,streak:8,lessons:19,username:'pedro_dev'},
+  {name:'Maria Coder',emoji:'👩‍💻',xp:650,streak:12,lessons:16,username:'maria_coder'},
+  {name:'João JS',emoji:'🧑',xp:540,streak:5,lessons:14,username:'joao_js'},
+  {name:'Carla Python',emoji:'👩‍🎓',xp:420,streak:9,lessons:11,username:'carla_py'},
+  {name:'Lucas Git',emoji:'🧑‍💻',xp:310,streak:3,lessons:8,username:'lucas_git'},
+];
+
+// ══════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════
+function goTo(screenId){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(screenId);
+  if(el) el.classList.add('active');
+  window.scrollTo(0,0);
+  if(screenId==='screen-home') renderHome();
+  if(screenId==='screen-learn') renderLearn();
+  if(screenId==='screen-library'){STATE.libType='all';renderLibChips();renderLibrary();}
+  if(screenId==='screen-search'){renderSearchChips();doSearch();}
+  if(screenId==='screen-rank') renderRanking();
+  if(screenId==='screen-friends') renderFriendsScreen();
+  if(screenId==='screen-profile') renderProfile();
+}
+
+function navTo(screenId,btn){
+  goTo(screenId);
+  // Depois de goTo (que ativa a nova tela), marca o botão correto na tela destino
+  const destScreen=document.getElementById(screenId);
+  if(destScreen){
+    destScreen.querySelectorAll('.bnav').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════════════
+function switchAuthTab(tab,el){
+  document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('form-login').style.display=tab==='login'?'block':'none';
+  document.getElementById('form-register').style.display=tab==='register'?'block':'none';
+}
+
+function doLogin(){
+  const u=document.getElementById('login-user').value.trim();
+  const p=document.getElementById('login-pass').value;
+  if(!u||!p){toast('⚠️ Preencha todos os campos','error');return;}
+  const user=Object.values(getUsers()).find(x=>x.email===u||x.username===u);
+  if(!user||user.password!==p){toast('❌ Usuário ou senha incorretos','error');return;}
+  setCurrent(user.email); STATE.user=user; afterLogin();
+}
+
+function doRegister(){
+  const name=document.getElementById('reg-name').value.trim();
+  const email=document.getElementById('reg-email').value.trim();
+  const username=document.getElementById('reg-user').value.trim().replace(/\s/g,'_').toLowerCase();
+  const pass=document.getElementById('reg-pass').value;
+  if(!name||!email||!username||!pass){toast('⚠️ Preencha todos os campos','error');return;}
+  if(pass.length<6){toast('⚠️ Senha mínimo 6 caracteres','error');return;}
+  const users=getUsers();
+  if(users[email]){toast('⚠️ Email já cadastrado','error');return;}
+  if(Object.values(users).find(u=>u.username===username)){toast('⚠️ Usuário já existe','error');return;}
+  const nu={
+    email,name,username,password:pass,avatar:'🧑',
+    xp:0,streak:0,lives:5,lessons:0,correct:0,total:0,
+    completedLessons:[],friends:[],
+    friendRequests:[],  // recebidos
+    sentRequests:[],    // enviados
+    history:[],
+    joinedAt:new Date().toLocaleDateString('pt-BR'),
+    bio:'Estudante de programação 🚀',
+    lastActive:new Date().toDateString(),
+  };
+  users[email]=nu; saveUsers(users); setCurrent(email); STATE.user=nu;
+  toast('🎉 Conta criada! Bem-vindo!'); afterLogin();
+}
+
+function demoLogin(){
+  const users=getUsers();
+  const email='visitante@cq.com';
+  if(!users[email]){
+    users[email]={
+      email,name:'Visitante',username:'visitante',password:'demo123',avatar:'👾',
+      xp:150,streak:3,lives:5,lessons:4,correct:18,total:22,
+      completedLessons:['lg0','lg1'],
+      friends:['ana_silva@mock.com'],
+      friendRequests:[],sentRequests:[],
+      history:[{lesson:'O que é programação?',xp:30,date:'Hoje'},{lesson:'Operadores Lógicos',xp:35,date:'Ontem'}],
+      joinedAt:new Date().toLocaleDateString('pt-BR'),bio:'Explorando o CodeQuest 🎮',
+      lastActive:new Date().toDateString(),
+    };
+    // adiciona mock friends como usuários para busca
+    MOCK_PLAYERS.forEach(p=>{
+      const me=p.username+'@mock.com';
+      if(!users[me]) users[me]={
+        email:me,name:p.name,username:p.username,password:'mock',avatar:p.emoji,
+        xp:p.xp,streak:p.streak,lives:5,lessons:p.lessons,correct:0,total:0,
+        completedLessons:[],friends:[email],friendRequests:[],sentRequests:[],
+        history:[],joinedAt:'01/01/2024',bio:'Jogador do CodeQuest',lastActive:new Date().toDateString(),
+      };
+    });
+    saveUsers(users);
+  }
+  setCurrent(email); STATE.user=users[email]; afterLogin();
+}
+
+function afterLogin(){
+  updateNavStats(); checkStreak(); goTo('screen-home');
+  toast(`👋 Olá, ${STATE.user.name.split(' ')[0]}!`);
+  updateFriendBadge();
+}
+
+function doLogout(){
+  setCurrent(null); STATE.user=null; goTo('screen-auth'); toast('Até logo! 👋');
+}
+
+function checkStreak(){
+  if(!STATE.user) return;
+  const today=new Date().toDateString();
+  const last=STATE.user.lastActive;
+  if(!last){ updateUser(STATE.user.email,{lastActive:today}); return; }
+  if(last!==today){
+    const yest=new Date(Date.now()-86400000).toDateString();
+    if(last!==yest) updateUser(STATE.user.email,{streak:0,lastActive:today});
+    else updateUser(STATE.user.email,{lastActive:today});
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  NAV STATS
+// ══════════════════════════════════════════════════════
+function updateNavStats(){
+  if(!STATE.user) return;
+  ['nav-streak','learn-streak'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=STATE.user.streak||0;});
+  ['nav-xp','learn-xp','rank-xp'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=STATE.user.xp||0;});
+  const lv=document.getElementById('nav-lives'); if(lv) lv.textContent=STATE.user.lives||5;
+  const av=document.getElementById('nav-avatar'); if(av) av.textContent=STATE.user.avatar||[...STATE.user.name][0].toUpperCase();
+}
+
+// ══════════════════════════════════════════════════════
+//  HOME
+// ══════════════════════════════════════════════════════
+function renderHome(){
+  if(!STATE.user) return;
+  document.getElementById('home-greeting').textContent=`Olá, ${STATE.user.name.split(' ')[0]}! 👋`;
+  document.getElementById('stat-streak').textContent=STATE.user.streak||0;
+  document.getElementById('stat-xp').textContent=STATE.user.xp||0;
+  document.getElementById('stat-lessons').textContent=STATE.user.lessons||0;
+  const acc=STATE.user.total>0?Math.round((STATE.user.correct/STATE.user.total)*100):0;
+  document.getElementById('stat-acc').textContent=acc+'%';
+
+  const dailies=[
+    {title:'Complete 3 lições hoje',meta:'Qualquer trilha • Desafio diário',xp:'+50 XP'},
+    {title:'Perfeito: 5 seguidos sem errar',meta:'Precisão máxima • Python',xp:'+80 XP'},
+    {title:'Explore a trilha de Lógica',meta:'4 lições fundamentais',xp:'+60 XP'},
+  ];
+  const d=dailies[new Date().getDay()%dailies.length];
+  document.getElementById('daily-title').textContent=d.title;
+  document.getElementById('daily-meta').textContent=d.meta;
+  document.getElementById('daily-xp-badge').textContent=d.xp;
+
+  // Continue cards
+  const cont=document.getElementById('continue-cards');
+  const entries=Object.entries(LESSONS).slice(0,3);
+  const cards=entries.map(([trail,lessons])=>{
+    const comp=(STATE.user.completedLessons||[]).filter(id=>lessons.find(l=>l.id===id)).length;
+    const pct=Math.round((comp/lessons.length)*100);
+    const next=lessons.find(l=>!(STATE.user.completedLessons||[]).includes(l.id));
+    if(!next) return '';
+    return `<div class="continue-card" onclick="startLessonById('${trail}','${next.id}')">
+      <div class="continue-icon" style="background:rgba(0,229,160,.1)">${next.icon}</div>
+      <div class="continue-info">
+        <div class="continue-title">${next.name} <span style="font-size:.7rem;color:var(--muted)">• ${TRAILS[trail].name}</span></div>
+        <div class="continue-sub">${next.desc}</div>
+        <div class="prog-mini"><div class="prog-mini-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div style="font-size:.78rem;color:var(--warn);font-weight:700;flex-shrink:0">+${next.xp}XP</div>
+    </div>`;
+  }).filter(Boolean);
+  cont.innerHTML=cards.length?cards.join(''):`<div style="color:var(--muted);font-size:.85rem;text-align:center;padding:16px">🎉 Todas as lições concluídas!</div>`;
+
+  // Featured
+  const feat=MEDIA.filter(m=>m.type==='video').slice(0,2);
+  document.getElementById('featured-media').innerHTML=feat.map(m=>`
+    <div class="continue-card" onclick="openMediaModal('${m.id}')">
+      <div class="continue-icon" style="background:rgba(255,107,53,.1);font-size:1.4rem">${m.thumb}</div>
+      <div class="continue-info">
+        <div class="continue-title">${m.title}</div>
+        <div class="continue-sub">${m.channel||m.show} • ${m.duration||m.readTime}</div>
+      </div>
+      <span class="media-badge video" style="flex-shrink:0">▶</span>
+    </div>`).join('');
+
+  // Friends preview
+  const hf=document.getElementById('home-friends');
+  const friendEmails=STATE.user.friends||[];
+  const users=getUsers();
+  const friendUsers=friendEmails.map(e=>users[e]).filter(Boolean);
+  if(!friendUsers.length){
+    hf.innerHTML=`<div style="color:var(--muted);font-size:.85rem;text-align:center;padding:14px">
+      Nenhum amigo ainda. <span style="color:var(--accent);cursor:pointer" onclick="goTo('screen-friends')">Adicione amigos →</span></div>`;
+  } else {
+    hf.innerHTML=friendUsers.slice(0,3).map(f=>`
+      <div class="friend-item">
+        <div class="friend-av">${f.avatar||'👤'}</div>
+        <div class="friend-info"><div class="friend-name">${f.name}</div>
+          <div class="friend-meta">${f.xp||0} XP • @${f.username}</div></div>
+        <div class="friend-streak">🔥${f.streak||0}</div>
+      </div>`).join('');
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  LEARN
+// ══════════════════════════════════════════════════════
+function renderLearn(){
+  const tabs=document.getElementById('trail-tabs');
+  tabs.innerHTML=Object.entries(TRAILS).map(([k,t])=>
+    `<button class="trail-tab ${k===STATE.currentTrail?'active':''}" onclick="setTrail(event,'${k}')">${t.name}</button>`
+  ).join('');
+  renderPath();
+}
+
+function setTrail(e,key){
+  STATE.currentTrail=key;
+  document.querySelectorAll('.trail-tab').forEach(t=>t.classList.remove('active'));
+  e.target.classList.add('active');
+  renderPath();
+}
+
+function renderPath(){
+  const lessons=LESSONS[STATE.currentTrail]||[];
+  const completed=STATE.user?(STATE.user.completedLessons||[]):[];
+  const path=document.getElementById('lesson-path');
+  if(!lessons.length){
+    path.innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted)">🚧 Em breve!</div>`;
+    return;
+  }
+  path.innerHTML=lessons.map((l,i)=>{
+    const isDone=completed.includes(l.id);
+    const isAct=!isDone&&(i===0||completed.includes(lessons[i-1]?.id));
+    const isLock=!isDone&&!isAct;
+    return `<div class="path-item" data-trail="${STATE.currentTrail}" data-lesson="${l.id}" data-locked="${isLock}" onclick="handlePathClick(this)">
+      ${i<lessons.length-1?'<div class="path-line"></div>':''}
+      <div class="path-circle ${isDone?'done':isAct?'active-step':'locked'}">${isDone?'✓':isAct?'▶':'🔒'}</div>
+      <div class="path-info">
+        <div class="path-label">${isDone?'✓ Concluída':isAct?'Em andamento':'Bloqueada'}</div>
+        <div class="path-name">${l.name}</div>
+        <div class="path-desc">${l.desc}</div>
+        <div class="path-pills">
+          <span class="pill">${l.xp} XP</span>
+          <span class="pill">${l.exercises.length} ex.</span>
+          ${isDone?'<span class="pill green">✓ Feita</span>':''}
+          ${isAct?'<span class="pill green">▶ Jogar</span>':''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function handlePathClick(el){
+  if(el.dataset.locked==='true'){toast('🔒 Complete a anterior primeiro!','error');return;}
+  startLessonById(el.dataset.trail,el.dataset.lesson);
+}
+
+// ══════════════════════════════════════════════════════
+//  LESSON ENGINE
+// ══════════════════════════════════════════════════════
+function startLessonById(trail,lessonId){
+  const lesson=LESSONS[trail]?.find(l=>l.id===lessonId);
+  if(!lesson) return;
+  STATE.currentLesson=lesson; STATE.currentExIdx=0;
+  STATE.lessonLives=5; STATE.lessonXP=0; STATE.lessonCorrect=0; STATE.lessonTotal=0;
+  STATE.droppedTokens=[]; STATE.selectedOpt=null;
+  if(STATE.user) updateUser(STATE.user.email,{lives:5});
+  document.getElementById('lesson-back').onclick=()=>{
+    if(confirm('Sair? Progresso perdido.')) goTo('screen-learn');
+  };
+  goTo('screen-lesson'); renderExercise();
+}
+
+function renderLivesDisplay(){
+  document.getElementById('lives-disp').innerHTML=[1,2,3,4,5].map(i=>
+    `<span class="heart ${i>STATE.lessonLives?'lost':''}">❤️</span>`).join('');
+}
+
+function renderExercise(){
+  const {exercises}=STATE.currentLesson;
+  const idx=STATE.currentExIdx;
+  document.getElementById('prog-fill').style.width=Math.round((idx/exercises.length)*100)+'%';
+  document.getElementById('prog-count').textContent=`${idx+1}/${exercises.length}`;
+  renderLivesDisplay();
+  if(idx>=exercises.length){showCompletion();return;}
+  const ex=exercises[idx];
+  STATE.droppedTokens=[]; STATE.answeredCorrectly=false; STATE.selectedOpt=null;
+
+  let html=`<div class="q-card">
+    <div class="q-type">${ex.type}</div>
+    <div class="q-title">${ex.title}</div>
+    <div class="q-sub">${ex.sub}</div>`;
+
+  if(ex.kind==='multiple'){
+    const L=['A','B','C','D'];
+    html+=`<div class="opts-grid">`+ex.options.map((o,i)=>
+      `<button class="opt-btn" id="opt-${i}" onclick="selectOpt(${i})">
+        <span class="opt-letter">${L[i]}</span>${o}</button>`).join('')+`</div>`;
+  }
+  if(ex.kind==='fillin'){
+    const code=ex.code.replace(/<b(\d)>/g,(_,n)=>
+      `<span class="blank" id="blank-${n}" data-idx="${n}">&nbsp;&nbsp;&nbsp;&nbsp;</span>`);
+    html+=`<div class="code-display">${code}</div><div class="tokens-pool">`;
+    ex.options.forEach(o=>{html+=`<div class="token" onclick="fillBlank(this,'${o}')">${o}</div>`;});
+    html+=`</div>`;
+  }
+  if(ex.kind==='reorder'){
+    const shuf=[...ex.tokens].sort(()=>Math.random()-.5);
+    html+=`<div class="drop-zone" id="drop-zone"><span id="drop-ph" style="color:var(--muted);font-size:.8rem">Clique nos tokens na ordem certa...</span></div>`;
+    html+=`<div class="tokens-pool" id="token-pool">`;
+    shuf.forEach((t,i)=>{
+      const safe=t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const dataVal=t.replace(/'/g,'&#39;').replace(/"/g,'&quot;');
+      html+=`<div class="token" id="tok-${i}" data-val="${dataVal}" onclick="addToken(this)">${safe}</div>`;
+    });
+    html+=`</div>`;
+  }
+
+  html+=`<div class="hint-box" id="hint-box"></div>
+    <div class="feedback" id="feedback">
+      <span class="fb-icon" id="fb-icon"></span>
+      <div class="fb-text"><strong id="fb-title"></strong><p id="fb-desc"></p></div>
+    </div>
+    <div class="lesson-actions">
+      <button class="btn btn-secondary btn-sm" onclick="showHint()">💡 Dica</button>
+      <button class="btn btn-primary btn-sm" id="check-btn" onclick="checkAnswer()">Verificar ✓</button>
+    </div></div>`;
+  document.getElementById('lesson-body').innerHTML=html;
+}
+
+function selectOpt(i){
+  if(STATE.answeredCorrectly) return;
+  STATE.selectedOpt=i;
+  document.querySelectorAll('.opt-btn').forEach((b,j)=>b.classList.toggle('selected',j===i));
+}
+
+function fillBlank(el,val){
+  const blanks=document.querySelectorAll('.blank');
+  for(const b of blanks){
+    if(!b.dataset.val){
+      b.textContent=val; b.dataset.val=val; b.classList.add('filled');
+      el.classList.add('used');
+      b.onclick=()=>{b.textContent='\u00a0\u00a0\u00a0\u00a0';delete b.dataset.val;
+        b.classList.remove('filled');b.onclick=null;el.classList.remove('used');};
+      break;
+    }
+  }
+}
+
+function addToken(el){
+  const val=el.dataset.val||el.textContent;
+  STATE.droppedTokens.push(val);
+  el.classList.add('used');
+  const zone=document.getElementById('drop-zone');
+  document.getElementById('drop-ph')?.remove();
+  const tok=document.createElement('div');
+  tok.className='token'; tok.textContent=val; tok.dataset.val=val;
+  tok.onclick=()=>{
+    tok.remove(); el.classList.remove('used');
+    STATE.droppedTokens=Array.from(zone.querySelectorAll('.token')).map(t=>t.dataset.val||t.textContent);
+  };
+  zone.appendChild(tok);
+}
+
+function checkAnswer(){
+  if(STATE.answeredCorrectly) return;
+  const ex=STATE.currentLesson.exercises[STATE.currentExIdx];
+  let correct=false;
+
+  if(ex.kind==='multiple'){
+    if(STATE.selectedOpt===null){toast('⚠️ Selecione uma opção','error');return;}
+    correct=STATE.selectedOpt===ex.correct;
+    document.querySelectorAll('.opt-btn').forEach((b,i)=>{
+      if(i===ex.correct) b.classList.add('correct');
+      else if(i===STATE.selectedOpt&&!correct) b.classList.add('wrong');
+    });
+  }
+  if(ex.kind==='fillin'){
+    const blanks=document.querySelectorAll('.blank');
+    const vals=Array.from(blanks).map(b=>b.dataset.val||'');
+    if(vals.some(v=>!v)){toast('⚠️ Preencha todos os espaços','error');return;}
+    correct=vals.every((v,i)=>v===ex.blanks[i]);
+  }
+  if(ex.kind==='reorder'){
+    if(!STATE.droppedTokens.length){toast('⚠️ Monte o código primeiro','error');return;}
+    const zone=document.getElementById('drop-zone');
+    const actual=Array.from(zone.querySelectorAll('.token')).map(t=>t.dataset.val||t.textContent);
+    correct=JSON.stringify(actual)===JSON.stringify(ex.correct);
+  }
+
+  STATE.lessonTotal++; STATE.answeredCorrectly=correct;
+  if(correct){
+    const xpG=Math.max(5,Math.floor(STATE.currentLesson.xp/STATE.currentLesson.exercises.length));
+    STATE.lessonXP+=xpG; STATE.lessonCorrect++;
+    if(STATE.user) updateUser(STATE.user.email,{xp:(STATE.user.xp||0)+xpG,correct:(STATE.user.correct||0)+1,total:(STATE.user.total||0)+1});
+    toast(`⚡ +${xpG} XP — Correto!`);
+  } else {
+    STATE.lessonLives=Math.max(0,STATE.lessonLives-1);
+    if(STATE.user) updateUser(STATE.user.email,{lives:STATE.lessonLives,total:(STATE.user.total||0)+1});
+    renderLivesDisplay();
+    if(STATE.lessonLives<=0){
+      setTimeout(()=>{toast('😓 Sem vidas! Tente novamente.','error');setTimeout(()=>goTo('screen-learn'),1500);},300);
+      return;
+    }
+  }
+  showFeedback(correct,ex.explain);
+  const btn=document.getElementById('check-btn');
+  btn.textContent='Próximo →'; btn.onclick=nextExercise;
+}
+
+function showFeedback(correct,msg){
+  const fb=document.getElementById('feedback');
+  fb.style.display='flex'; fb.className='feedback '+(correct?'correct':'wrong');
+  document.getElementById('fb-icon').textContent=correct?'✅':'❌';
+  document.getElementById('fb-title').textContent=correct?'Correto!':'Quase lá!';
+  document.getElementById('fb-desc').textContent=msg;
+}
+
+function showHint(){
+  const ex=STATE.currentLesson.exercises[STATE.currentExIdx];
+  const box=document.getElementById('hint-box');
+  if(box.style.display==='block'){box.style.display='none';return;}
+  const hints={multiple:'💡 Elimine as opções claramente erradas.',fillin:'💡 Pense na sintaxe da linguagem.',reorder:'💡 Ordem lógica: declaração → condição → corpo → retorno.'};
+  box.innerHTML=hints[ex.kind]||'💡 Revise os conceitos na seção Wiki!';
+  box.style.display='block';
+}
+
+function nextExercise(){
+  STATE.currentExIdx++;
+  if(STATE.currentExIdx>=STATE.currentLesson.exercises.length) showCompletion();
+  else renderExercise();
+}
+
+function showCompletion(){
+  const lesson=STATE.currentLesson;
+  if(STATE.user){
+    const comp=[...(STATE.user.completedLessons||[])];
+    if(!comp.includes(lesson.id)) comp.push(lesson.id);
+    const history=[{lesson:lesson.name,xp:STATE.lessonXP,date:'Hoje'},...(STATE.user.history||[])].slice(0,20);
+    updateUser(STATE.user.email,{completedLessons:comp,streak:(STATE.user.streak||0)+1,lessons:(STATE.user.lessons||0)+1,history,lastActive:new Date().toDateString()});
+  }
+  const acc=STATE.lessonTotal>0?Math.round((STATE.lessonCorrect/STATE.lessonTotal)*100):100;
+  document.getElementById('prog-fill').style.width='100%';
+  document.getElementById('lesson-body').innerHTML=`
+    <div class="completion-card">
+      <div class="completion-emoji">🎉</div>
+      <div class="completion-title">Lição Concluída!</div>
+      <div class="completion-sub">${lesson.name}</div>
+      <div class="completion-stats">
+        <div class="cs-item"><div class="cs-num" style="color:var(--warn)">+${STATE.lessonXP}</div><div class="cs-label">XP ganhos</div></div>
+        <div class="cs-item"><div class="cs-num" style="color:var(--accent)">${acc}%</div><div class="cs-label">Acerto</div></div>
+        <div class="cs-item"><div class="cs-num" style="color:var(--accent2)">🔥${STATE.user?.streak||1}</div><div class="cs-label">Streak</div></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="goTo('screen-learn')">Ver trilha 🗺️</button>
+        <button class="btn btn-secondary" onclick="goTo('screen-home')">Início</button>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  LIBRARY
+// ══════════════════════════════════════════════════════
+const LIB_LANGS=['all','logic','python','javascript','html_css','git','sql','java','algorithms'];
+const LIB_LABELS={all:'Todos',logic:'🧩',python:'🐍',javascript:'⚡',html_css:'🌐',git:'🌿',sql:'🗄️',java:'☕',algorithms:'🔢'};
+
+function renderLibChips(){
+  document.getElementById('lib-chips').innerHTML=LIB_LANGS.map(l=>
+    `<div class="chip ${STATE.libFilter===l?'active':''}" onclick="setLibLang('${l}')">${LIB_LABELS[l]} ${l==='all'?'':l.replace('_',' ')}</div>`
+  ).join('');
+}
+
+function setLibLang(lang){STATE.libFilter=lang;renderLibChips();renderLibrary();}
+function setLibTab(type,btn){
+  STATE.libType=type;
+  document.querySelectorAll('.lib-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active'); renderLibrary();
+}
+function filterLibrary(q){STATE.libSearch=q;renderLibrary();}
+
+function renderLibrary(){
+  const type=STATE.libType||'all', lang=STATE.libFilter||'all';
+  const q=(STATE.libSearch||'').toLowerCase();
+  const items=MEDIA.filter(m=>{
+    if(type!=='all'&&m.type!==type) return false;
+    if(lang!=='all'&&m.lang!==lang) return false;
+    if(q&&!m.title.toLowerCase().includes(q)&&!m.tags.some(t=>t.includes(q))) return false;
+    return true;
+  });
+  const cont=document.getElementById('lib-content');
+  if(!items.length){cont.innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted)">Nenhum conteúdo encontrado.</div>`;return;}
+  cont.innerHTML=items.map(m=>{
+    if(m.type==='video') return `<div class="media-card" onclick="openMediaModal('${m.id}')">
+      <div class="media-thumb">${m.youtubeId?`<img src="https://img.youtube.com/vi/${m.youtubeId}/mqdefault.jpg" alt="" onerror="this.parentElement.innerHTML='<span style=font-size:2.5rem>${m.thumb}</span>'">`:m.thumb}
+      <div class="play-overlay"><div class="play-btn-big">▶</div></div></div>
+      <div class="media-info"><div class="media-title">${m.title}</div>
+        <div class="media-meta"><span class="media-badge video">🎬 Vídeo</span><span>${m.channel}</span><span>⏱${m.duration}</span></div>
+      </div></div>`;
+    if(m.type==='podcast') return `<div class="podcast-card" onclick="openMediaModal('${m.id}')">
+      <div class="podcast-cover">🎙️</div>
+      <div class="podcast-info"><div class="podcast-title">${m.title}</div>
+        <div class="podcast-meta">${m.show} • ${m.duration}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">${m.tags.map(t=>`<span class="media-tag">${t}</span>`).join('')}</div>
+      </div></div>`;
+    if(m.type==='article') return `<div class="wiki-card" onclick="openMediaModal('${m.id}')">
+      <div style="display:flex;justify-content:space-between;margin-bottom:7px">
+        <span class="media-badge article">📝 Artigo</span><span style="font-size:.73rem;color:var(--muted)">⏱${m.readTime}</span>
+      </div>
+      <div class="wiki-card-title">${m.title}</div>
+      <div class="wiki-card-preview">${m.desc}</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:7px">${m.tags.map(t=>`<span class="media-tag">${t}</span>`).join('')}</div>
+    </div>`;
+    return '';
+  }).join('');
+}
+
+function openMediaModal(id){
+  const m=MEDIA.find(x=>x.id===id); if(!m) return;
+  let html='';
+  if(m.type==='video'){
+    html=m.youtubeId
+      ?`<div class="video-container"><iframe src="https://www.youtube.com/embed/${m.youtubeId}" allowfullscreen></iframe></div>`
+      :`<div style="background:#060a12;border-radius:11px;padding:36px;text-align:center;margin-bottom:14px"><div style="font-size:3rem">${m.thumb}</div><div style="color:var(--muted);font-size:.85rem;margin-top:8px">Em breve</div></div>`;
+    html+=`<div style="font-weight:700;font-family:'Syne',sans-serif;font-size:1.05rem;margin-bottom:5px">${m.title}</div>
+      <div style="color:var(--muted);font-size:.8rem;margin-bottom:10px">${m.channel} • ${m.duration}</div>
+      <div class="media-desc">${m.desc}</div>
+      <div class="media-tags">${m.tags.map(t=>`<span class="media-tag">${t}</span>`).join('')}</div>`;
+  }
+  if(m.type==='podcast'){
+    html=`<div style="display:flex;gap:14px;align-items:center;margin-bottom:18px">
+      <div class="podcast-cover" style="width:72px;height:72px">🎙️</div>
+      <div><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;margin-bottom:3px">${m.title}</div>
+      <div style="color:var(--muted);font-size:.82rem">${m.show} • ${m.duration}</div></div></div>
+      <div class="media-desc">${m.desc}</div>
+      <div style="background:var(--surface2);border-radius:11px;padding:14px;text-align:center;margin:14px 0">
+        <div style="font-size:1.8rem;margin-bottom:8px">🎧</div>
+        <div style="color:var(--muted);font-size:.82rem;margin-bottom:10px">Ouça no seu app favorito</div>
+        <button class="btn btn-purple btn-sm" onclick="startMiniPlayer('${m.id}')">▶ Simular reprodução</button>
+      </div>
+      <div class="media-tags">${m.tags.map(t=>`<span class="media-tag">${t}</span>`).join('')}</div>`;
+  }
+  if(m.type==='article'){
+    html=`<div class="wiki-content">${m.content}</div>
+      <div style="margin-top:14px;display:flex;gap:7px;flex-wrap:wrap">${m.tags.map(t=>`<span class="media-tag">${t}</span>`).join('')}</div>`;
+  }
+  document.getElementById('modal-media-content').innerHTML=html;
+  openModal('modal-media');
+}
+
+function startMiniPlayer(id){
+  const m=MEDIA.find(x=>x.id===id); if(!m) return;
+  document.getElementById('mp-icon').textContent=m.thumb||'🎧';
+  document.getElementById('mp-title').textContent=m.title;
+  document.getElementById('mp-sub').textContent=m.show||m.channel||'';
+  document.getElementById('mini-player').classList.add('show');
+  closeModal('modal-media');
+}
+function closeMiniPlayer(){ document.getElementById('mini-player').classList.remove('show'); }
+
+// ══════════════════════════════════════════════════════
+//  SEARCH / WIKI
+// ══════════════════════════════════════════════════════
+const ALL_CHIPS=['python','javascript','lógica','algoritmos','variáveis','loops','funções','git','oop','big o','css','sql','html'];
+
+function renderSearchChips(){
+  document.getElementById('topic-chips').innerHTML=ALL_CHIPS.map(c=>
+    `<div class="chip" onclick="searchChip('${c}')">${c}</div>`).join('');
+}
+function searchChip(term){
+  document.getElementById('search-input').value=term;
+  document.querySelectorAll('#topic-chips .chip').forEach(c=>c.classList.toggle('active',c.textContent===term));
+  doSearch();
+}
+function doSearch(){
+  const q=(document.getElementById('search-input')?.value||'').toLowerCase().trim();
+  const results=q===''?WIKI:WIKI.filter(w=>
+    w.title.toLowerCase().includes(q)||w.topics.some(t=>t.includes(q))||w.preview.toLowerCase().includes(q));
+  const wrap=document.getElementById('search-results'); if(!wrap) return;
+  if(!results.length){wrap.innerHTML=`<div style="text-align:center;padding:36px;color:var(--muted)">🔍 Sem resultados para "${q}"</div>`;return;}
+  wrap.innerHTML=results.map(w=>`
+    <div class="wiki-card" onclick="showWiki('${w.id}')">
+      <div class="wiki-card-title">${w.title}</div>
+      <div class="wiki-card-preview">${w.preview}</div>
+      <span class="wiki-tag" style="background:rgba(0,229,160,.1);color:${w.tagColor};border:1px solid ${w.tagColor}30">${w.tag}</span>
+    </div>`).join('');
+  document.getElementById('wiki-view').style.display='none';
+  wrap.style.display='block';
+}
+function showWiki(id){
+  const w=WIKI.find(x=>x.id===id); if(!w) return;
+  document.getElementById('search-results').style.display='none';
+  const v=document.getElementById('wiki-view'); v.style.display='block';
+  v.innerHTML=`<div class="wiki-back" onclick="closeWiki()">← Voltar</div>
+    <div class="wiki-full"><div class="wiki-content">${w.content}</div></div>`;
+}
+function closeWiki(){
+  document.getElementById('wiki-view').style.display='none';
+  document.getElementById('search-results').style.display='block';
+}
+
+// ══════════════════════════════════════════════════════
+//  RANKING
+// ══════════════════════════════════════════════════════
+function renderRanking(){
+  if(!STATE.user) return;
+  document.getElementById('rank-xp').textContent=STATE.user.xp||0;
+  const ux=STATE.user.xp||0;
+  let league='Bronze',emoji='🥉';
+  if(ux>=500){league='Ouro';emoji='🥇';}else if(ux>=200){league='Prata';emoji='🥈';}
+  document.getElementById('league-name').textContent=league;
+  document.getElementById('league-emoji').textContent=emoji;
+  const all=[...MOCK_PLAYERS,{name:STATE.user.name+' (você)',emoji:STATE.user.avatar||'👤',xp:ux,streak:STATE.user.streak||0,isYou:true}]
+    .sort((a,b)=>b.xp-a.xp);
+  const maxXp=all[0].xp||1;
+  document.getElementById('ranking-list').innerHTML=all.map((p,i)=>{
+    const pc=i===0?'gold':i===1?'silver':i===2?'bronze':p.isYou?'you':'';
+    return `<div class="rank-item">
+      <div class="rank-pos ${pc}">${i+1}</div>
+      <div class="rank-avatar ${p.isYou?'you-av':''}">${p.emoji}</div>
+      <div class="rank-name">${p.name}</div>
+      <div class="rank-bar-wrap"><div class="rank-bar-fill" style="width:${Math.round((p.xp/maxXp)*100)}%"></div></div>
+      <div class="rank-xp">${p.xp} XP</div>
+    </div>`;
+  }).join('');
+  const d=new Date();
+  document.getElementById('league-timer').textContent=`⏱ ${7-d.getDay()}d ${23-d.getHours()}h restantes`;
+}
+
+// ══════════════════════════════════════════════════════
+//  FRIENDS SYSTEM — COMPLETO
+// ══════════════════════════════════════════════════════
+function setFriendsTab(tab,btn){
+  STATE.friendsTab=tab;
+  document.querySelectorAll('.friends-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  const fw=document.getElementById('friends-search-wrap');
+  fw.style.display=tab==='friends'?'block':'none';
+  renderFriendsScreen();
+}
+
+function renderFriendsScreen(){
+  if(!STATE.user) return;
+  const tab=STATE.friendsTab||'friends';
+  const list=document.getElementById('friends-list');
+  updateFriendBadge();
+
+  if(tab==='friends') renderFriendsList(list);
+  else if(tab==='requests') renderFriendRequests(list);
+  else if(tab==='sent') renderSentRequests(list);
+}
+
+function renderFriendsList(list){
+  const users=getUsers();
+  const fEmails=STATE.user.friends||[];
+  const q=(document.getElementById('friends-filter-input')?.value||'').toLowerCase();
+  let friends=fEmails.map(e=>({...users[e],email:e})).filter(Boolean);
+  if(q) friends=friends.filter(f=>f.name.toLowerCase().includes(q)||f.username.toLowerCase().includes(q));
+
+  if(!friends.length){
+    list.innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted)">
+      <div style="font-size:2.5rem;margin-bottom:12px">👥</div>
+      <div style="font-weight:600;margin-bottom:6px">${!fEmails.length?'Nenhum amigo ainda':'Nenhum resultado'}</div>
+      <div style="font-size:.82rem">${!fEmails.length?'Toque em "+ Adicionar" para buscar amigos':''}</div>
+    </div>`;
+    return;
+  }
+  list.innerHTML=friends.map((f,i)=>`
+    <div class="friend-item">
+      <div class="friend-av">${f.avatar||'👤'}
+        ${isOnline(f)?'<div class="online-dot"></div>':''}
+      </div>
+      <div class="friend-info">
+        <div class="friend-name">${f.name}</div>
+        <div class="friend-meta">@${f.username} • ${f.xp||0} XP • ${f.lessons||0} lições</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px">
+        <div class="friend-streak">🔥${f.streak||0}</div>
+        <button class="btn btn-danger btn-sm" style="padding:5px 9px;font-size:.75rem" onclick="removeFriend('${f.email}')">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderFriendRequests(list){
+  const reqs=STATE.user.friendRequests||[];
+  const users=getUsers();
+  if(!reqs.length){
+    list.innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted)">
+      <div style="font-size:2rem;margin-bottom:8px">📭</div>
+      <div>Nenhum pedido pendente</div></div>`;
+    return;
+  }
+  list.innerHTML=reqs.map(fromEmail=>{
+    const u=users[fromEmail]; if(!u) return '';
+    return `<div class="req-card">
+      <div style="font-size:1.6rem">${u.avatar||'👤'}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:.88rem">${u.name}</div>
+        <div style="font-size:.75rem;color:var(--muted)">@${u.username} • ${u.xp||0} XP</div>
+      </div>
+      <div class="req-actions">
+        <button class="btn btn-primary btn-sm" style="padding:6px 12px" onclick="acceptRequest('${fromEmail}')">✓</button>
+        <button class="btn btn-danger btn-sm" style="padding:6px 10px" onclick="rejectRequest('${fromEmail}')">✕</button>
+      </div>
+    </div>`;
+  }).filter(Boolean).join('');
+}
+
+function renderSentRequests(list){
+  const sent=STATE.user.sentRequests||[];
+  const users=getUsers();
+  if(!sent.length){
+    list.innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted)">
+      <div style="font-size:2rem;margin-bottom:8px">📤</div>
+      <div>Nenhum pedido enviado</div></div>`;
+    return;
+  }
+  list.innerHTML=sent.map(toEmail=>{
+    const u=users[toEmail]; if(!u) return '';
+    return `<div class="req-card">
+      <div style="font-size:1.6rem">${u.avatar||'👤'}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:.88rem">${u.name}</div>
+        <div style="font-size:.75rem;color:var(--muted)">@${u.username} • Aguardando...</div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="cancelRequest('${toEmail}')">Cancelar</button>
+    </div>`;
+  }).filter(Boolean).join('');
+}
+
+function isOnline(user){ return user.lastActive===new Date().toDateString(); }
+
+function filterFriends(val){ renderFriendsList(document.getElementById('friends-list')); }
+
+function searchUsers(q){
+  const res=document.getElementById('user-search-results');
+  if(!q||q.length<2){res.innerHTML='';return;}
+  const users=getUsers();
+  const me=STATE.user.email;
+  const myFriends=STATE.user.friends||[];
+  const mySent=STATE.user.sentRequests||[];
+  const found=Object.values(users).filter(u=>
+    u.email!==me&&
+    (u.name.toLowerCase().includes(q.toLowerCase())||u.username.toLowerCase().includes(q.toLowerCase()))
+  ).slice(0,8);
+
+  if(!found.length){res.innerHTML=`<div style="color:var(--muted);font-size:.85rem;text-align:center;padding:14px">Nenhum usuário encontrado</div>`;return;}
+  res.innerHTML=found.map(u=>{
+    const isFriend=myFriends.includes(u.email);
+    const isPending=mySent.includes(u.email);
+    const isReqFromThem=(STATE.user.friendRequests||[]).includes(u.email);
+    let btn='';
+    if(isFriend) btn=`<span style="font-size:.77rem;color:var(--accent);font-weight:600">✓ Amigo</span>`;
+    else if(isPending) btn=`<span style="font-size:.77rem;color:var(--muted)">⏳ Enviado</span>`;
+    else if(isReqFromThem) btn=`<button class="btn btn-primary btn-sm" style="padding:5px 11px;font-size:.77rem" onclick="acceptRequest('${u.email}');closeModal('modal-search-friend')">Aceitar</button>`;
+    else btn=`<button class="btn btn-primary btn-sm" style="padding:5px 11px;font-size:.77rem" onclick="sendFriendRequest('${u.email}')">+ Adicionar</button>`;
+    return `<div class="req-card">
+      <div style="font-size:1.5rem">${u.avatar||'👤'}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:.87rem">${u.name}</div>
+        <div style="font-size:.74rem;color:var(--muted)">@${u.username} • ${u.xp||0} XP</div>
+      </div>
+      ${btn}
+    </div>`;
+  }).join('');
+}
+
+function sendFriendRequest(toEmail){
+  const users=getUsers();
+  const toUser=users[toEmail]; if(!toUser) return;
+
+  // Add to my sentRequests
+  const mySent=[...(STATE.user.sentRequests||[])];
+  if(!mySent.includes(toEmail)) mySent.push(toEmail);
+  updateUser(STATE.user.email,{sentRequests:mySent});
+
+  // Add to their friendRequests
+  const theirReqs=[...(toUser.friendRequests||[])];
+  if(!theirReqs.includes(STATE.user.email)) theirReqs.push(STATE.user.email);
+  updateUser(toEmail,{friendRequests:theirReqs});
+
+  // refresh search
+  searchUsers(document.getElementById('friend-search-input').value);
+  toast(`📨 Pedido enviado para ${toUser.name}!`);
+}
+
+function acceptRequest(fromEmail){
+  const users=getUsers();
+  const fromUser=users[fromEmail]; if(!fromUser) return;
+
+  // Add each other as friends
+  const myFriends=[...(STATE.user.friends||[])];
+  if(!myFriends.includes(fromEmail)) myFriends.push(fromEmail);
+  const myReqs=(STATE.user.friendRequests||[]).filter(e=>e!==fromEmail);
+  updateUser(STATE.user.email,{friends:myFriends,friendRequests:myReqs});
+
+  const theirFriends=[...(fromUser.friends||[])];
+  if(!theirFriends.includes(STATE.user.email)) theirFriends.push(STATE.user.email);
+  const theirSent=(fromUser.sentRequests||[]).filter(e=>e!==STATE.user.email);
+  updateUser(fromEmail,{friends:theirFriends,sentRequests:theirSent});
+
+  toast(`✅ Agora você e ${fromUser.name} são amigos!`);
+  renderFriendsScreen(); updateFriendBadge();
+}
+
+function rejectRequest(fromEmail){
+  const users=getUsers();
+  const fromUser=users[fromEmail];
+  const myReqs=(STATE.user.friendRequests||[]).filter(e=>e!==fromEmail);
+  updateUser(STATE.user.email,{friendRequests:myReqs});
+  const theirSent=(fromUser?.sentRequests||[]).filter(e=>e!==STATE.user.email);
+  if(fromUser) updateUser(fromEmail,{sentRequests:theirSent});
+  renderFriendsScreen(); updateFriendBadge();
+}
+
+function cancelRequest(toEmail){
+  const users=getUsers();
+  const toUser=users[toEmail];
+  const mySent=(STATE.user.sentRequests||[]).filter(e=>e!==toEmail);
+  updateUser(STATE.user.email,{sentRequests:mySent});
+  const theirReqs=(toUser?.friendRequests||[]).filter(e=>e!==STATE.user.email);
+  if(toUser) updateUser(toEmail,{friendRequests:theirReqs});
+  toast('Pedido cancelado.'); renderFriendsScreen();
+}
+
+function removeFriend(friendEmail){
+  if(!confirm('Remover este amigo?')) return;
+  const users=getUsers();
+  const friend=users[friendEmail];
+  const myF=(STATE.user.friends||[]).filter(e=>e!==friendEmail);
+  updateUser(STATE.user.email,{friends:myF});
+  if(friend){
+    const theirF=(friend.friends||[]).filter(e=>e!==STATE.user.email);
+    updateUser(friendEmail,{friends:theirF});
+  }
+  toast('Amigo removido.'); renderFriendsScreen();
+}
+
+function updateFriendBadge(){
+  if(!STATE.user) return;
+  const count=(STATE.user.friendRequests||[]).length;
+  const dot=document.getElementById('req-dot');
+  if(dot) dot.style.display=count>0?'block':'none';
+}
+
+// ══════════════════════════════════════════════════════
+//  PROFILE
+// ══════════════════════════════════════════════════════
+function renderProfile(){
+  if(!STATE.user) return;
+  const u=STATE.user;
+  const acc=u.total>0?Math.round((u.correct/u.total)*100):0;
+  const comp=u.completedLessons||[];
+  const badges=[
+    {icon:'🔥',name:'Primeira Chama',locked:u.streak<3},
+    {icon:'⚡',name:'Sprint',locked:(u.lessons||0)<3},
+    {icon:'🐍',name:'Pythonista',locked:!comp.some(id=>id.startsWith('py'))},
+    {icon:'🧩',name:'Lógico',locked:!comp.some(id=>id.startsWith('lg'))},
+    {icon:'🏆',name:'Campeão',locked:(u.xp||0)<500},
+    {icon:'💎',name:'Diamante',locked:(u.xp||0)<1000},
+    {icon:'🌐',name:'Web Dev',locked:!comp.some(id=>id.startsWith('html'))},
+    {icon:'🗄️',name:'SQL Pro',locked:!comp.some(id=>id.startsWith('sql'))},
+    {icon:'👥',name:'Social',locked:(u.friends||[]).length<3},
+  ];
+  document.getElementById('profile-main').innerHTML=`
+    <div class="profile-hero">
+      <div class="profile-av">${u.avatar||[...u.name][0].toUpperCase()}</div>
+      <div class="profile-name">${u.name}</div>
+      <div class="profile-joined">@${u.username} • Desde ${u.joinedAt||'?'}</div>
+      <div style="font-size:.82rem;color:var(--muted);margin-top:3px;text-align:center">${u.bio||''}</div>
+      <div class="profile-stats">
+        <div class="pstat"><div class="pstat-num" style="color:var(--warn)">${u.xp||0}</div><div class="pstat-label">XP</div></div>
+        <div class="pstat"><div class="pstat-num" style="color:var(--accent2)">${u.streak||0}</div><div class="pstat-label">🔥 Streak</div></div>
+        <div class="pstat"><div class="pstat-num" style="color:var(--accent)">${u.lessons||0}</div><div class="pstat-label">Lições</div></div>
+        <div class="pstat"><div class="pstat-num" style="color:var(--accent3)">${acc}%</div><div class="pstat-label">Acerto</div></div>
+      </div>
+    </div>
+    <div class="section"><div class="section-title" style="margin-bottom:11px">🏅 Conquistas</div>
+      <div class="badges-grid">${badges.map(b=>`
+        <div class="badge-item ${b.locked?'locked':''}">
+          <div class="b-icon">${b.icon}</div><div class="b-name">${b.name}</div>
+        </div>`).join('')}</div>
+    </div>
+    <div class="section"><div class="section-title" style="margin-bottom:11px">📖 Histórico</div>
+      ${(u.history||[]).slice(0,8).length?
+        (u.history||[]).slice(0,8).map(h=>`
+          <div class="history-item">
+            <div>📚</div>
+            <div class="h-info"><div class="h-title">${h.lesson}</div><div class="h-date">${h.date}</div></div>
+            <div class="h-xp">+${h.xp} XP</div>
+          </div>`).join(''):
+        `<div style="color:var(--muted);font-size:.85rem;text-align:center;padding:18px">Nenhuma lição ainda.</div>`}
+    </div>`;
+}
+
+function openEditProfile(){
+  if(!STATE.user) return;
+  document.getElementById('edit-name-input').value=STATE.user.name||'';
+  document.getElementById('edit-bio-input').value=STATE.user.bio||'';
+  // emoji picker
+  const emojis='🧑👩‍💻👨‍💻🧑‍💻👩‍🎓👨‍🎓🦸🧙🤖👾🐍⚡🔥💎🚀🎯🧠'.split(/(?<=\p{Emoji})/u).filter(Boolean);
+  const picked=document.getElementById('emoji-picker');
+  picked.innerHTML=emojis.map(e=>`
+    <div onclick="pickAvatar('${e}')" style="cursor:pointer;font-size:1.5rem;padding:5px;border-radius:8px;
+      transition:.15s;${STATE.user.avatar===e?'background:var(--surface2);outline:2px solid var(--accent)':''}"
+      id="em-${encodeURIComponent(e)}">${e}</div>`).join('');
+  openModal('modal-editprofile');
+}
+
+function pickAvatar(e){
+  STATE.tmpAvatar=e;
+  document.querySelectorAll('[id^="em-"]').forEach(el=>{el.style.outline='none';el.style.background='';});
+  const el=document.getElementById('em-'+encodeURIComponent(e));
+  if(el){el.style.outline='2px solid var(--accent)';el.style.background='var(--surface2)';}
+}
+
+function saveProfile(){
+  const name=document.getElementById('edit-name-input').value.trim();
+  const bio=document.getElementById('edit-bio-input').value.trim();
+  if(!name){toast('⚠️ Nome não pode ser vazio','error');return;}
+  const upd={name,bio};
+  if(STATE.tmpAvatar) upd.avatar=STATE.tmpAvatar;
+  updateUser(STATE.user.email,upd);
+  STATE.tmpAvatar=null;
+  closeModal('modal-editprofile'); renderProfile(); updateNavStats();
+  toast('✅ Perfil atualizado!');
+}
+
+// ══════════════════════════════════════════════════════
+//  MODALS
+// ══════════════════════════════════════════════════════
+function openModal(id){ document.getElementById(id)?.classList.add('open'); }
+function closeModal(id){ document.getElementById(id)?.classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); });
+});
+
+// ══════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════
+let toastTimer;
+function toast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='show '+(type==='error'?'error':type==='warn'?'warn':'');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.className='',2500);
+}
+
+// ══════════════════════════════════════════════════════
+//  PWA — Install prompt
+// ══════════════════════════════════════════════════════
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault(); deferredPrompt=e;
+  if(!S.get('install-dismissed',false)){
+    setTimeout(()=>document.getElementById('install-banner').classList.add('show'),3000);
+  }
+});
+document.getElementById('install-btn').addEventListener('click',async()=>{
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const {outcome}=await deferredPrompt.userChoice;
+  if(outcome==='accepted') toast('🎉 CodeQuest instalado!');
+  deferredPrompt=null;
+  dismissInstall();
+});
+function dismissInstall(){
+  document.getElementById('install-banner').classList.remove('show');
+  S.set('install-dismissed',true);
+}
+
+// Service Worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    // inline SW para funcionar sem arquivo externo
+    const swCode=`
+const C='cq-v2';
+self.addEventListener('install',e=>e.waitUntil(
+  caches.open(C).then(c=>c.addAll(['./']))
+));
+self.addEventListener('fetch',e=>e.respondWith(
+  caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>r))
+));`;
+    const blob=new Blob([swCode],{type:'application/javascript'});
+    const url=URL.createObjectURL(blob);
+    navigator.serviceWorker.register(url).catch(()=>{});
+  });
+}
+
+// manifest inline
+const manifest={
+  name:'CodeQuest',short_name:'CodeQuest',
+  description:'Aprenda programação jogando',
+  start_url:'./',display:'standalone',
+  background_color:'#070914',theme_color:'#070914',
+  icons:[{src:'https://api.dicebear.com/7.x/initials/svg?seed=CQ&backgroundColor=00e5a0&textColor=070914',sizes:'192x192',type:'image/svg+xml'}]
+};
+const mBlob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+const mUrl=URL.createObjectURL(mBlob);
+const mLink=document.createElement('link');
+mLink.rel='manifest'; mLink.href=mUrl; document.head.appendChild(mLink);
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+(function init(){
+  const email=getCurrent();
+  if(email){
+    const user=getUser(email);
+    if(user){STATE.user=user;updateNavStats();checkStreak();goTo('screen-home');updateFriendBadge();return;}
+  }
+  goTo('screen-auth');
+})();
+
+// ══════════════════════════════════════════════════════
+//  MOBILE ENHANCEMENTS
+// ══════════════════════════════════════════════════════
+
+// ── 1. Swipe back/forward gesture for navigation ──
+(function initSwipeGesture(){
+  const SCREEN_ORDER = ['screen-home','screen-learn','screen-library','screen-search','screen-rank','screen-profile'];
+  let startX=0, startY=0, isSwiping=false;
+  const THRESHOLD=60, MIN_RATIO=2.5;
+
+  // Swipe indicators
+  const leftInd=document.createElement('div');
+  leftInd.className='swipe-indicator left';
+  const rightInd=document.createElement('div');
+  rightInd.className='swipe-indicator right';
+  document.body.append(leftInd,rightInd);
+
+  document.addEventListener('touchstart',e=>{
+    const t=e.touches[0];
+    startX=t.clientX; startY=t.clientY; isSwiping=false;
+    // Only allow edge swipe (within 30px of edge)
+    if(startX<30) leftInd.classList.add('visible');
+    if(startX>window.innerWidth-30) rightInd.classList.add('visible');
+  },{passive:true});
+
+  document.addEventListener('touchmove',e=>{
+    const dx=e.touches[0].clientX-startX;
+    const dy=e.touches[0].clientY-startY;
+    if(!isSwiping && Math.abs(dx)>12 && Math.abs(dx)/Math.abs(dy||1)>MIN_RATIO) isSwiping=true;
+  },{passive:true});
+
+  document.addEventListener('touchend',e=>{
+    leftInd.classList.remove('visible');
+    rightInd.classList.remove('visible');
+    if(!isSwiping) return;
+    const dx=e.changedTouches[0].clientX-startX;
+    if(Math.abs(dx)<THRESHOLD) return;
+
+    // Find current active main screen
+    const active=document.querySelector('.screen.active');
+    if(!active) return;
+    const idx=SCREEN_ORDER.indexOf(active.id);
+    if(idx<0) return;
+
+    if(dx>0 && idx>0) { // swipe right = go back
+      const bnav=document.querySelectorAll('.bottom-nav .bnav');
+      navTo(SCREEN_ORDER[idx-1], bnav[idx-1]);
+    } else if(dx<0 && idx<SCREEN_ORDER.length-1) { // swipe left = go forward
+      const bnav=document.querySelectorAll('.bottom-nav .bnav');
+      navTo(SCREEN_ORDER[idx+1], bnav[idx+1]);
+    }
+  },{passive:true});
+})();
+
+// ── 2. Virtual keyboard detection (iOS/Android) ──
+(function initKeyboardDetection(){
+  const INITIAL_HEIGHT=window.innerHeight;
+  let keyboardOpen=false;
+
+  window.visualViewport?.addEventListener('resize',()=>{
+    const vh=window.visualViewport.height;
+    const isOpen=vh < INITIAL_HEIGHT*0.75;
+    if(isOpen!==keyboardOpen){
+      keyboardOpen=isOpen;
+      document.body.classList.toggle('keyboard-open',isOpen);
+      // Push active modals up so they stay visible
+      document.querySelectorAll('.modal-overlay.open').forEach(m=>{
+        m.classList.toggle('keyboard-open',isOpen);
+      });
+    }
+  });
+})();
+
+// ── 3. Double-tap home to scroll to top ──
+(function initDoubleTapHome(){
+  let lastTap=0;
+  document.querySelectorAll('.bnav').forEach((btn,i)=>{
+    btn.addEventListener('touchend',e=>{
+      if(!btn.classList.contains('active')) return;
+      const now=Date.now();
+      if(now-lastTap<300){
+        // Double tap: scroll to top of current main area
+        const active=document.querySelector('.screen.active .main');
+        if(active) active.scrollTo({top:0,behavior:'smooth'});
+      }
+      lastTap=now;
+    },{passive:true});
+  });
+})();
+
+// ── 4. Long press on lesson options for hint ──
+(function initLongPressHint(){
+  let pressTimer=null;
+  document.addEventListener('touchstart',e=>{
+    const opt=e.target.closest('.opt-btn');
+    if(!opt) return;
+    pressTimer=setTimeout(()=>{
+      // Subtle vibration feedback
+      if(navigator.vibrate) navigator.vibrate(30);
+      // Highlight the option briefly
+      opt.style.boxShadow='0 0 0 2px var(--warn)';
+      setTimeout(()=>opt.style.boxShadow='',800);
+    },600);
+  },{passive:true});
+  document.addEventListener('touchend',()=>{ clearTimeout(pressTimer); },{passive:true});
+  document.addEventListener('touchmove',()=>{ clearTimeout(pressTimer); },{passive:true});
+})();
+
+// ── 5. Smooth scroll snap for lesson body ──
+(function initLessonScrollFix(){
+  // Ensure lesson actions stay visible when keyboard opens
+  const lessonScreen=document.getElementById('screen-lesson');
+  if(!lessonScreen) return;
+
+  const obs=new MutationObserver(()=>{
+    if(lessonScreen.classList.contains('active')){
+      // Allow smooth scrolling to action buttons on small screens
+      const actions=lessonScreen.querySelector('.lesson-actions');
+      if(actions){
+        setTimeout(()=>{
+          actions.scrollIntoView({behavior:'smooth',block:'nearest'});
+        },100);
+      }
+    }
+  });
+  obs.observe(lessonScreen,{attributeFilter:['class']});
+})();
+
+// ── 6. Vibrate on correct/wrong answer ──
+const _origToast=toast;
+function toast(msg, type=''){
+  _origToast(msg, type);
+  if(!navigator.vibrate) return;
+  if(msg.includes('✅')||msg.includes('Correto')||msg.includes('🎉')) navigator.vibrate([20,30,20]);
+  else if(msg.includes('❌')||type==='error') navigator.vibrate([60,20,60]);
+}
+
+// ── 7. Prevent double-submit on buttons ──
+document.querySelectorAll('.btn').forEach(btn=>{
+  btn.addEventListener('touchend',e=>{
+    if(btn.dataset.tapping) { e.preventDefault(); return; }
+    btn.dataset.tapping='1';
+    setTimeout(()=>delete btn.dataset.tapping, 500);
+  },{passive:false});
+});
+
+// ── 8. Status bar color update on screen change ──
+(function initStatusBarColor(){
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(!meta) return;
+  const COLORS={
+    'screen-auth':'#070914',
+    'screen-home':'#070914',
+    'screen-lesson':'#111827',
+  };
+  const observer=new MutationObserver(()=>{
+    const active=document.querySelector('.screen.active');
+    if(active) meta.content=COLORS[active.id]||'#070914';
+  });
+  document.querySelectorAll('.screen').forEach(s=>observer.observe(s,{attributeFilter:['class']}));
+})();
+
+// ── 9. Auto-dismiss keyboard on trail tab selection ──
+document.querySelectorAll('.trail-tab, .lib-tab, .friends-tab, .auth-tab').forEach(tab=>{
+  tab.addEventListener('touchend',()=>{
+    document.activeElement?.blur();
+  },{passive:true});
+});
+
+// ── 10. Wake Lock API to prevent sleep during lessons ──
+(function initWakeLock(){
+  let wakeLock=null;
+  async function requestWake(){
+    try{
+      if('wakeLock' in navigator){
+        wakeLock=await navigator.wakeLock.request('screen');
+      }
+    }catch(e){}
+  }
+  async function releaseWake(){
+    try{ await wakeLock?.release(); wakeLock=null; }catch(e){}
+  }
+  // Acquire on lesson start, release on completion
+  document.addEventListener('lessonStart',requestWake);
+  document.addEventListener('lessonEnd',releaseWake);
+  // Also handle page visibility
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible' && document.querySelector('#screen-lesson.active')){
+      requestWake();
+    }
+  });
+})();
+
+// ══════════════════════════════════════════════════════
+//  iOS-SPECIFIC ENHANCEMENTS
+// ══════════════════════════════════════════════════════
+
+const IS_IOS = /ipad|iphone|ipod/i.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const IS_SAFARI = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+const IS_STANDALONE = window.navigator.standalone === true ||
+  window.matchMedia('(display-mode: standalone)').matches;
+
+// ── iOS 1. Show native iOS install prompt ──
+(function initIosInstall(){
+  if(!IS_IOS || !IS_SAFARI || IS_STANDALONE) return;
+  if(S.get('ios-install-dismissed', false)) return;
+  // Show after 4s on first visit
+  setTimeout(()=>{
+    document.getElementById('ios-install-banner')?.classList.add('show');
+  }, 4000);
+})();
+
+function dismissIosInstall(){
+  document.getElementById('ios-install-banner')?.classList.remove('show');
+  S.set('ios-install-dismissed', true);
+}
+
+// ── iOS 2. Fix viewport height on Safari (rubber-band / URL bar) ──
+(function fixIOSViewport(){
+  if(!IS_IOS) return;
+  function setVH(){
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--ios-vh', `${vh}px`);
+  }
+  setVH();
+  window.addEventListener('resize', setVH, {passive:true});
+  window.addEventListener('orientationchange', ()=>{ setTimeout(setVH, 300); }, {passive:true});
+})();
+
+// ── iOS 3. Prevent Safari bounce on non-scrollable elements ──
+(function preventIOSBounce(){
+  if(!IS_IOS) return;
+  document.addEventListener('touchmove', e=>{
+    // Allow scroll only in explicitly scrollable elements
+    let el = e.target;
+    let canScroll = false;
+    while(el && el !== document.body){
+      const style = window.getComputedStyle(el);
+      const overflow = style.overflow + style.overflowY;
+      if(/auto|scroll/.test(overflow) && el.scrollHeight > el.clientHeight){
+        canScroll = true; break;
+      }
+      el = el.parentElement;
+    }
+    if(!canScroll) e.preventDefault();
+  }, {passive: false});
+})();
+
+// ── iOS 4. Fix input focus scroll jump (Safari scrolls to input) ──
+(function fixIOSInputFocus(){
+  if(!IS_IOS) return;
+  const inputs = document.querySelectorAll('input, textarea');
+  inputs.forEach(input=>{
+    input.addEventListener('focus', ()=>{
+      // Delay to let keyboard animation finish
+      setTimeout(()=>{
+        input.scrollIntoView({behavior:'smooth', block:'center'});
+      }, 350);
+    }, {passive:true});
+  });
+  // Also handle dynamically added inputs
+  const observer = new MutationObserver(mutations=>{
+    mutations.forEach(m=>{
+      m.addedNodes.forEach(node=>{
+        if(node.nodeType!==1) return;
+        node.querySelectorAll?.('input, textarea').forEach(input=>{
+          input.addEventListener('focus', ()=>{
+            setTimeout(()=>input.scrollIntoView({behavior:'smooth', block:'center'}), 350);
+          }, {passive:true});
+        });
+      });
+    });
+  });
+  observer.observe(document.body, {childList:true, subtree:true});
+})();
+
+// ── iOS 5. Fix Safari back-swipe conflicting with our swipe gesture ──
+(function fixIOSSafariBackSwipe(){
+  if(!IS_IOS || !IS_SAFARI || IS_STANDALONE) return;
+  // In Safari browser (not standalone), disable our edge swipe
+  // since it conflicts with Safari's own back gesture
+  document.documentElement.style.setProperty('--swipe-enabled', '0');
+})();
+
+// ── iOS 6. Status bar height compensation ──
+(function fixIOSStatusBar(){
+  if(!IS_IOS || !IS_STANDALONE) return;
+  // When running as PWA, status bar eats into the layout
+  const safeTop = parseInt(getComputedStyle(document.documentElement)
+    .getPropertyValue('--safe-top')) || 44;
+  // Increase nav padding for standalone mode
+  document.querySelectorAll('nav').forEach(nav=>{
+    nav.style.paddingTop = `calc(14px + env(safe-area-inset-top, ${safeTop}px))`;
+  });
+})();
+
+// ── iOS 7. Disable zoom on double-tap for interactive elements ──
+(function disableIOSDoubleTapZoom(){
+  if(!IS_IOS) return;
+  let lastTouch = 0;
+  document.addEventListener('touchend', e=>{
+    const now = Date.now();
+    if(now - lastTouch < 300){
+      const el = e.target;
+      // Only prevent zoom on buttons and interactive elements, not text
+      if(el.closest('button, .opt-btn, .token, .trail-tab, .bnav, .btn')){
+        e.preventDefault();
+      }
+    }
+    lastTouch = now;
+  }, {passive: false});
+})();
+
+// ── iOS 8. Smooth momentum scroll for main areas ──
+(function initIOSMomentumScroll(){
+  if(!IS_IOS) return;
+  document.querySelectorAll('.main, .lesson-body, .modal, .trail-tabs').forEach(el=>{
+    el.style.webkitOverflowScrolling = 'touch';
+  });
+  // Also for dynamically shown modals
+  const observer = new MutationObserver(()=>{
+    document.querySelectorAll('.modal').forEach(el=>{
+      el.style.webkitOverflowScrolling = 'touch';
+    });
+  });
+  observer.observe(document.body, {childList:true, subtree:true});
+})();
+
+// ── iOS 9. Keyboard type hints on inputs ──
+(function setIOSKeyboardTypes(){
+  if(!IS_IOS) return;
+  const emailInputs = document.querySelectorAll('input[type="email"], #login-user, #reg-email, #friend-search-input');
+  emailInputs.forEach(i=>{ i.inputMode='email'; i.autocapitalize='none'; i.autocorrect='off'; });
+  const textInputs = document.querySelectorAll('input[type="text"]:not([id*="email"]):not([id*="user"])');
+  textInputs.forEach(i=>{ i.autocorrect='off'; i.spellcheck=false; });
+  // Code-related inputs — use monospace keyboard
+  const codeInputs = document.querySelectorAll('.code-input');
+  codeInputs.forEach(i=>{ i.inputMode='text'; i.autocapitalize='none'; i.autocorrect='off'; i.spellcheck=false; });
+})();
+
+// ── iOS 10. Add to home screen shortcut icons (apple-touch-icon) ──
+(function addIOSTouchIcons(){
+  if(!IS_IOS) return;
+  // Create apple-touch-icon SVG as data URL
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'>
+    <rect width='192' height='192' rx='42' fill='%23070914'/>
+    <text x='96' y='130' text-anchor='middle' font-family='sans-serif' font-weight='900'
+      font-size='90' fill='%2300e5a0'>C</text>
+  </svg>`;
+  const dataUrl = 'data:image/svg+xml,' + svg.trim().replace(/\n\s+/g,' ');
+  const link = document.createElement('link');
+  link.rel = 'apple-touch-icon';
+  link.href = dataUrl;
+  document.head.appendChild(link);
+  // Splash screen background color
+  const splash = document.createElement('meta');
+  splash.name = 'apple-mobile-web-app-status-bar-style';
+  splash.content = 'black-translucent';
+  document.head.appendChild(splash);
+})();
+
+// ── iOS 11. Orientation change handler ──
+(function handleIOSOrientation(){
+  if(!IS_IOS) return;
+  window.addEventListener('orientationchange', ()=>{
+    // Force reflow after orientation change (Safari bug)
+    document.body.style.display = 'none';
+    setTimeout(()=>{ document.body.style.display = ''; }, 10);
+  }, {passive:true});
+})();
+
+// ── Mark as iOS for debugging ──
+if(IS_IOS) document.documentElement.setAttribute('data-ios', IS_STANDALONE ? 'pwa' : 'safari');
+</script>
+</body>
+</html>
